@@ -3,6 +3,9 @@
 @inject UserManager<ApplicationUser> UserManager
 
 <ul class="navbar-nav">
+    
+    @* TODO Izmeni go ova za da bide vo AccountControllerot*@
+    
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
@@ -17,10 +20,10 @@
     else
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
+            <a class="nav-link text-dark" asp-area="Auth" asp-controller="Account" asp-action="RegisterPatient">Register</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+            <a class="nav-link text-dark" asp-area="Auth" asp-controller="Account" asp-action="Login">Login</a>
         </li>
     }
 </ul>

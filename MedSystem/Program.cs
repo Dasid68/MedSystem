@@ -28,10 +28,10 @@ builder.Services.AddControllersWithViews(options =>
     options.Filters.Add(new AuthorizeFilter(policy));
 });
 
-builder.Services.AddRazorPages(options =>
+
+builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.Conventions.AuthorizeFolder("/");
-    options.Conventions.AllowAnonymousToAreaFolder("Identity","/Account");
+    options.LoginPath = "/auth/login";
 });
 
 
@@ -56,6 +56,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller}/{action}/{id?}"
+    );
 
 app.MapControllerRoute(
         name: "default",
