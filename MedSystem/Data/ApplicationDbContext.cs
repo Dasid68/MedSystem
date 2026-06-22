@@ -4,8 +4,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MedSystem.Data;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options)
 {
+    public DbSet<City> Cities { get; set; }
+    public DbSet<Patient> Patients { get; set; }
+    public DbSet<Doctor> Doctors { get; set; }
+    public DbSet<MedicalRecord> MedicalRecords { get; set; }
+    public DbSet<Appointment> Appointments { get; set; }
+    public DbSet<Referral> Referrals { get; set; }
+    public DbSet<Specialization> Specializations { get; set; }
+    public DbSet<Prescription> Prescriptions { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -46,5 +55,46 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             new City { Id = 33, Name = "Тетово" },
             new City { Id = 34, Name = "Штип" }
         );
+
+        builder.Entity<Patient>(entity =>
+        {
+            // Eden pacient ima eden appuser i obratno
+            
+            entity.HasOne(p => p.ApplicationUser)
+                .WithOne(u => u.Patient)
+                .HasForeignKey<Patient>(p => p.ApplicationUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            // Pacientot ima embg sto e unikaten i go indeksiram
+
+            entity.HasIndex(p => p.Embg).IsUnique();
+        });
+
+        builder.Entity<Doctor>(entity =>
+        {
+            // Eden doktor ima eden appuser i obratno
+            
+            entity.HasOne(d => d.ApplicationUser)
+                .WithOne(u => u.Doctor)
+                .HasForeignKey<Doctor>(d => d.ApplicationUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Referral>(entity =>
+        {
+            entity.HasOne(r => r.ReferringDoctor)
+                .WithMany(d => d.IssuedReferrals)
+                .HasForeignKey(r => r.ReferringDoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            entity.HasOne(r => r.ReferredDoctor)
+                .WithMany(d => d.ReceivedReferrals)
+                .HasForeignKey(r => r.ReferredDoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            
+        });
+
+
     }
 }

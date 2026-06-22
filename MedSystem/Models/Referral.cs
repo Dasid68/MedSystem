@@ -11,12 +11,13 @@ public class Referral
     public Patient Patient { get; set; }
     
     [Required]
-    public int RefferingDoctorId { get; set; }
+    
+    public int ReferringDoctorId { get; set; }
     public Doctor ReferringDoctor { get; set; }
     
     [Required]
-    public int RefferedDoctorId { get; set; }
-    public Doctor RefferedDoctor { get; set; }
+    public int ReferredDoctorId { get; set; }
+    public Doctor ReferredDoctor { get; set; }
     
     public DateTime IssuedDate { get; set; } =  DateTime.Now;
     

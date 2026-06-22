@@ -1,13 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MedSystem.Enums;
 
 namespace MedSystem.Models;
 
-
-public enum Gender
-{
-    Male,
-    Female
-}
 
 public class Patient
 {
@@ -16,7 +11,7 @@ public class Patient
     public ApplicationUser ApplicationUser { get; set; }
     
    
-    public string EMBG { get; set; }
+    public string Embg { get; set; } = String.Empty;
     
     public DateTime DateOfBirth { get; set; }
     

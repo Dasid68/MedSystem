@@ -19,7 +19,7 @@
                         <p class="text-muted small">Внесете ги вашите податоци за да се најавите во системот</p>
                     </div>
 
-                    <form  method="post">
+                    <form asp-area="Auth" asp-controller="Account" asp-action="Login" method="post">
                         
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none my-3" role="alert"></div>
 
@@ -34,13 +34,12 @@
                             <label asp-for="Password">Лозинка</label>
                             <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
                         </div>
-
-                        <div class="form-check mb-4 text-start">
-                            <input asp-for="RememberMe" class="form-check-input" id="rememberMeCheck" />
-                            <label asp-for="RememberMe" class="form-check-label text-muted small" for="rememberMeCheck">
-                                Запомни ме на овој уред
-                            </label>
-                        </div>
+                        @if (ViewBag.ErrorMessage != null)
+                        {
+                            <div class="form-floating mb-3 alert alert-danger my-3" id="errorMessage">
+                                @ViewBag.ErrorMessage
+                            </div>
+                        }
 
                         <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold shadow-sm text-white bg-gradient mb-3">
                             Најави се
@@ -59,3 +58,9 @@
         </div>
     </div>
 </div>
+
+
+@section Scripts
+{
+    
+}

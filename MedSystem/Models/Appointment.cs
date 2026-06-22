@@ -1,14 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MedSystem.Enums;
 
 namespace MedSystem.Models;
 
-public enum Status
-{
-    Pending,
-    Confirmed,
-    Completed,
-    Cancelled
-}
+
 public class Appointment
 {
     public int Id { get; set; }
