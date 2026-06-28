@@ -23,12 +23,7 @@ public class HomeController(
             if (_user != null)
             {
                 var roles = await userManager.GetRolesAsync(_user);
-            
-                if (roles.Contains("Patient"))
-                {
-                    return View();
-                }
-        
+                
                 if (roles.Contains("Doctor"))
                 {
                     return RedirectToAction("Index", "Home", new {area = "Doctor"});
