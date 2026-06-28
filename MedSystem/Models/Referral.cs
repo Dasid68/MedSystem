@@ -24,6 +24,13 @@ public class Referral
     [Required]
     [StringLength(300)]
     public string Reason { get; set; }
+    
+    public int ReferringSpecializationId { get; set; }
+    public Specialization ReferringSpecialization { get; set; }
+    
+    public int MedicalInstitutionId { get; set; }
+    public MedicalInstitution MedicalInstitution { get; set; }
+    
      
     
     

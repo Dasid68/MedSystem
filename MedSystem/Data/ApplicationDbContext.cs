@@ -55,6 +55,45 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             new City { Id = 33, Name = "Тетово" },
             new City { Id = 34, Name = "Штип" }
         );
+        int skopjeCityId = 30;
+        
+        builder.Entity<MedicalInstitution>().HasData(
+            new MedicalInstitution
+                {
+                    Id = 1, 
+                    Name = "Универзитетски клинички центар „Мајка Тереза“",
+                    Address = "Водњанска 17, Скопје 1000",
+                    CityId = skopjeCityId
+                },
+                new MedicalInstitution
+                {
+                    Id = 2,
+                    Name = "ГОБ „8-ми Септември“",
+                    Address = "Париска бб, Тафталиџе, Скопје",
+                    CityId = skopjeCityId
+                },
+                new MedicalInstitution
+                {
+                    Id = 3,
+                    Name = "ЈЗУ Клиника за Универзитетска Хирургија „Св. Наум Охридски“",
+                    Address = "11-ти Октомври 53, Скопје",
+                    CityId = skopjeCityId
+                },
+                new MedicalInstitution
+                {
+                    Name = "Поликлиника „Букурешт“",
+                    Id = 4,
+                    Address = "Бледски Договор бб, Карпош 3, Скопје",
+                    CityId = skopjeCityId
+                },
+                new MedicalInstitution
+                {
+                    Id = 5,
+                    Name = "Поликлиника „Јане Сандански“",
+                    Address = "Бул. Јане Сандански бб, Аеродром, Скопје",
+                    CityId = skopjeCityId
+                }
+        );
 
         builder.Entity<Patient>(entity =>
         {
@@ -92,6 +131,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasForeignKey(r => r.ReferredDoctorId)
                 .OnDelete(DeleteBehavior.Restrict);
             
+            entity.HasOne(r => r.ReferringSpecialization)
+                .WithMany()
+                .HasForeignKey(r => r.ReferringSpecializationId)
+                .OnDelete(DeleteBehavior.Restrict);
             
         });
 
