@@ -16,6 +16,32 @@ public class HomeController(
 {
     public async Task<IActionResult> Index()
     {
+        if (signInManager.IsSignedIn(User))
+        {
+            var _user = await userManager.GetUserAsync(User);
+         
+            if (_user != null)
+            {
+                var roles = await userManager.GetRolesAsync(_user);
+            
+                if (roles.Contains("Patient"))
+                {
+                    return View();
+                }
+        
+                if (roles.Contains("Doctor"))
+                {
+                    return RedirectToAction("Index", "Home", new {area = "Doctor"});
+                }
+        
+                if (roles.Contains("Admin"))
+                {
+                    return RedirectToAction("Index", "Home", new {area = "Admin"});
+                }
+            }
+        }
+        
+        
         string userEmail = User.FindFirstValue(ClaimTypes.Email)!;
 
         var user = context.Users.Include(u => u.Patient).ThenInclude(p => p.Referrals).FirstOrDefault(u => u.Email == userEmail);

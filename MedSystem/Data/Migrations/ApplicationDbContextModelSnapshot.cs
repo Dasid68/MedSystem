@@ -336,10 +336,6 @@ namespace MedSystem.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("SpecializationId")
                         .HasColumnType("INTEGER");
 
@@ -351,6 +347,67 @@ namespace MedSystem.Data.Migrations
                     b.HasIndex("SpecializationId");
 
                     b.ToTable("Doctors");
+                });
+
+            modelBuilder.Entity("MedSystem.Models.MedicalInstitution", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CityId");
+
+                    b.ToTable("MedicalInstitution");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "Водњанска 17, Скопје 1000",
+                            CityId = 30,
+                            Name = "Универзитетски клинички центар „Мајка Тереза“"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Address = "Париска бб, Тафталиџе, Скопје",
+                            CityId = 30,
+                            Name = "ГОБ „8-ми Септември“"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Address = "11-ти Октомври 53, Скопје",
+                            CityId = 30,
+                            Name = "ЈЗУ Клиника за Универзитетска Хирургија „Св. Наум Охридски“"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Address = "Бледски Договор бб, Карпош 3, Скопје",
+                            CityId = 30,
+                            Name = "Поликлиника „Букурешт“"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Address = "Бул. Јане Сандански бб, Аеродром, Скопје",
+                            CityId = 30,
+                            Name = "Поликлиника „Јане Сандански“"
+                        });
                 });
 
             modelBuilder.Entity("MedSystem.Models.MedicalRecord", b =>
@@ -428,13 +485,15 @@ namespace MedSystem.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Instructions")
+                        .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("IssuedDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Medications")
+                    b.Property<string>("Medication")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("PatientId")
@@ -458,6 +517,9 @@ namespace MedSystem.Data.Migrations
                     b.Property<DateTime>("IssuedDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("MedicalInstitutionId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("PatientId")
                         .HasColumnType("INTEGER");
 
@@ -472,13 +534,20 @@ namespace MedSystem.Data.Migrations
                     b.Property<int>("ReferringDoctorId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("ReferringSpecializationId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("MedicalInstitutionId");
 
                     b.HasIndex("PatientId");
 
                     b.HasIndex("ReferredDoctorId");
 
                     b.HasIndex("ReferringDoctorId");
+
+                    b.HasIndex("ReferringSpecializationId");
 
                     b.ToTable("Referrals");
                 });
@@ -496,6 +565,43 @@ namespace MedSystem.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Specializations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Кардиологија"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Педијатрија"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Дерматологија"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Општа медицина"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Неврологија"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Офталмологија"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Гинекологија"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -679,6 +785,17 @@ namespace MedSystem.Data.Migrations
                     b.Navigation("Specialization");
                 });
 
+            modelBuilder.Entity("MedSystem.Models.MedicalInstitution", b =>
+                {
+                    b.HasOne("MedSystem.Models.City", "City")
+                        .WithMany()
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("City");
+                });
+
             modelBuilder.Entity("MedSystem.Models.MedicalRecord", b =>
                 {
                     b.HasOne("MedSystem.Models.Patient", "Patient")
@@ -728,6 +845,12 @@ namespace MedSystem.Data.Migrations
 
             modelBuilder.Entity("MedSystem.Models.Referral", b =>
                 {
+                    b.HasOne("MedSystem.Models.MedicalInstitution", "MedicalInstitution")
+                        .WithMany()
+                        .HasForeignKey("MedicalInstitutionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MedSystem.Models.Patient", "Patient")
                         .WithMany("Referrals")
                         .HasForeignKey("PatientId")
@@ -746,11 +869,21 @@ namespace MedSystem.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("MedSystem.Models.Specialization", "ReferringSpecialization")
+                        .WithMany()
+                        .HasForeignKey("ReferringSpecializationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("MedicalInstitution");
+
                     b.Navigation("Patient");
 
                     b.Navigation("ReferredDoctor");
 
                     b.Navigation("ReferringDoctor");
+
+                    b.Navigation("ReferringSpecialization");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
