@@ -1,0 +1,164 @@
+﻿@model Doctor
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Профил на доктор</h2>
+            <p class="text-muted mb-0">Преглед на сите информации и примарни пациенти</p>
+        </div>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+                <i class="bi bi-pencil-square"></i> Измени
+            </a>
+            <button type="button" 
+                    class="btn btn-danger me-2  open-delete-modal"
+                    data-bs-toggle="modal"
+                    data-bs-target="#deleteModal"
+                    data-id="@Model.Id"
+                    data-name="@Model.ApplicationUser.FirstName @Model.ApplicationUser.LastName">
+                <i class="bi bi-trash"></i> Избриши
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Назад кон листата
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center pt-4">
+                    <i class="bi bi-person-badge text-primary" style="font-size: 5rem;"></i>
+                    <h4 class="mt-3 fw-bold">д-р @Model.ApplicationUser.FirstName @Model.ApplicationUser.LastName</h4>
+                    <span class="badge bg-primary px-3 py-2 rounded-pill fs-6 mb-3">@Model.Specialization.Name</span>
+                </div>
+                <hr class="mx-3 my-0 text-secondary" />
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3 text-secondary" style="font-size: 0.9rem; text-transform: uppercase;">Контакт и локација</h5>
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-envelope text-muted fs-5 me-3"></i>
+                        <div>
+                            <small class="text-muted d-block">Е-пошта</small>
+                            <span class="fw-medium">@Model.ApplicationUser.Email</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-telephone text-muted fs-5 me-3"></i>
+                        <div>
+                            <small class="text-muted d-block">Телефон</small>
+                            <span class="fw-medium">@Model.ApplicationUser.PhoneNumber</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-hospital text-muted fs-5 me-3"></i>
+                        <div>
+                            @* TODO: Napravi da ima sekoj doktor medicinska institucija i tuka da se pojavi soodvetno *@
+                            <small class="text-muted d-block">Медицинска институција</small>
+                            <span class="fw-medium">"Не е доделена"</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-geo-alt text-muted fs-5 me-3"></i>
+                        <div>
+                            <small class="text-muted d-block">Адреса</small>
+                            <span class="fw-medium">@Model.ApplicationUser.Address  </span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-building text-muted fs-5 me-3"></i>
+                        <div>
+                            <small class="text-muted d-block">Град</small>
+                            <span class="fw-medium">@Model.ApplicationUser.City.Name </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                    <h4 class="fw-bold mb-0 text-dark">
+                        <i class="bi bi-people-fill text-success me-2"></i> Примарни пациенти
+                    </h4>
+                    <a asp-action="AddPatient" asp-route-id="@Model.Id" class="btn btn-sm btn-success">
+                        <i class="bi bi-person-plus-fill me-1"></i> Додели пациент
+                    </a>
+                </div>
+                <div class="card-body px-4">
+                    @if (Model.PrimaryPatients.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mt-2">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Име и презиме</th>
+                                    <th>ЕМБГ</th>
+                                    <th>Телефон</th>
+                                    <th>Е-маил</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var patient in Model.PrimaryPatients)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">@patient.ApplicationUser.FirstName @patient.ApplicationUser.LastName</div>
+                                        </td>
+                                        <td>@patient.Embg</td>
+                                        <td>@patient.ApplicationUser.PhoneNumber</td>
+                                        <td>@patient.ApplicationUser.Email</td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-emoji-neutral text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-3 fs-5">Овој доктор моментално нема доделени примарни пациенти.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="Partials/_DeleteModal"/>
+
+@section Scripts
+{
+    <script>
+        const openModalButtons = document.querySelectorAll(".open-delete-modal")
+        const deleteModal = document.getElementById("deleteModal");
+       
+        
+        deleteModal.addEventListener("show.bs.modal", (e) => { 
+            const button = e.relatedTarget
+
+            const doctorId = button.getAttribute('data-id');
+            const doctorName = button.getAttribute('data-name');
+            
+            console.log("Модалот се отвара за ID:", doctorId);
+            console.log("Име на доктор:", doctorName);
+
+            document.getElementById('doctorIdToDelete').value = doctorId;
+            document.getElementById('doctorNameToDelete').textContent = doctorName;
+        })
+        
+        
+        
+    </script>
+}
+

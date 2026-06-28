@@ -1,5 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
+
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLower();
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,10 +17,10 @@
     <link rel="stylesheet" href="~/MedSystem.styles.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/css/sidebar/sidebar.css" asp-append-version="true">
 </head>
-<body>
+<body >
 
 <div class="container-fluid">
-    <div class="row">
+    <div class="row d-flex flex-column">
         
         <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse bg-dark">
             <div class="position-sticky pt-3 d-flex flex-column h-100 ">
@@ -24,22 +28,18 @@
                 <div class="text-center mb-4 text-white px-3">
                     <i class="bi bi-heart-pulse-fill text-primary fs-1"></i>
                     <h5 class="mt-2 fw-bold">MedSystem</h5>
-                    @if (SignInManager.IsSignedIn(User))
-                    {
-                        <span class="badge bg-secondary">Активен Корисник</span>
-                    }
                 </div>
                 <hr class="text-secondary" />
                 
                 <ul class="nav flex-column flex-nowrap flex-grow-1 pb-2">
                     <li class="nav-item">
-                        <a class="nav-link active text-white" href="#">
+                        <a class="nav-link @(currentController == "home" ? "active text-white" : "text-white-50") " asp-area="Admin" asp-controller="Home" asp-action="Index">
                             <i class="bi bi-speedometer2 me-2"></i> Контролна табла
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white-50" href="#">
-                            <i class="bi bi-calendar-event me-2"></i> Мои термини
+                        <a class="nav-link @(currentController == "doctor" ? "active text-white" : "text-white-50")" asp-area="Admin"  asp-controller="Doctor" asp-action="Index">
+                            <i class="bi bi-person-vcard-fill me-2"></i> Доктори
                         </a>
                     </li>
                     <li class="nav-item">
@@ -47,14 +47,9 @@
                             <i class="bi bi-file-earmark-medical me-2"></i> Мои упати
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item mb-3">
                         <a class="nav-link text-white-50" href="#">
                             <i class="bi bi-capsule me-2"></i> Рецепти и терапија
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white-50" href="#">
-                            <i class="bi bi-clipboard-data me-2"></i> Лаб. резултати
                         </a>
                     </li>
                     
@@ -81,8 +76,9 @@
                 </ul>
             </div>
         </nav>
+        
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 p-5 flex-grow-1">
 
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 p-5">
             <div class="flex-grow-1 pb-5">
                 @RenderBody()
             </div>
