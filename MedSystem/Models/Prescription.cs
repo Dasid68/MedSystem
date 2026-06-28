@@ -16,10 +16,11 @@ public class Prescription
     
     public DateTime IssuedDate { get; set; } = DateTime.Now;
     public DateTime ExpirationDate { get; set; } = DateTime.Now.AddDays(7);
-    
+    [StringLength(500)]
     public string? Instructions { get; set; }
     
     [Required]
-    public string Medications { get; set; }
+    [StringLength(50)]
+    public string Medication { get; set; } = String.Empty;
     
 }

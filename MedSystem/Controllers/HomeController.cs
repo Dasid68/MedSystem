@@ -1,14 +1,27 @@
 using System.Diagnostics;
+using System.Security.Claims;
+using MedSystem.Data;
 using Microsoft.AspNetCore.Mvc;
 using MedSystem.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace MedSystem.Controllers;
 
-public class HomeController : Controller
+public class HomeController(
+    UserManager<ApplicationUser> userManager, 
+    SignInManager<ApplicationUser> signInManager,
+    ApplicationDbContext context    
+    ) : Controller
 {
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
+        string userEmail = User.FindFirstValue(ClaimTypes.Email)!;
+
+        var user = context.Users.Include(u => u.Patient).ThenInclude(p => p.Referrals).FirstOrDefault(u => u.Email == userEmail);
+        
+        
+        return View(user);
     }
 
     public IActionResult Privacy()
