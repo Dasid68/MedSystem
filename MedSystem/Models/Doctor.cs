@@ -8,13 +8,11 @@ public class Doctor
     public string ApplicationUserId { get; set; }
     public ApplicationUser ApplicationUser { get; set; }
     
-    [Required]
+   
     public int SpecializationId { get; set; }
     public Specialization  Specialization { get; set; }
     
-    [Required]
-    [RegularExpression(@"^\+?\d{7,15}$", ErrorMessage = "Невалиден телефонски број")]
-    public string PhoneNumber { get; set; }
+   
 
     public ICollection<Referral> IssuedReferrals { get; set; } = new List<Referral>();
     public ICollection<Referral> ReceivedReferrals { get; set; } = new List<Referral>();

@@ -95,6 +95,16 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 }
         );
 
+        builder.Entity<Specialization>().HasData(
+            new Specialization { Id = 1, Name = "Кардиологија" },
+            new Specialization { Id = 2, Name = "Педијатрија" },
+            new Specialization { Id = 3, Name = "Дерматологија" },
+            new Specialization { Id = 4, Name = "Општа медицина" },
+            new Specialization { Id = 5, Name = "Неврологија" },
+            new Specialization { Id = 6, Name = "Офталмологија" },
+            new Specialization { Id = 7, Name = "Гинекологија" }
+        );
+
         builder.Entity<Patient>(entity =>
         {
             // Eden pacient ima eden appuser i obratno

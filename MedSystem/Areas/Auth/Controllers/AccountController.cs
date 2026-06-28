@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace MedSystem.Controllers;
+namespace MedSystem.Areas.Auth.Controllers;
 
 [Area("Auth")]
 [AllowAnonymous]
@@ -14,37 +14,48 @@ namespace MedSystem.Controllers;
 public class AccountController : Controller
 {
    private readonly UserManager<ApplicationUser> _userManager;
-   private readonly RoleManager<IdentityRole> _roleManager;
    private readonly SignInManager<ApplicationUser> _signInManager;
    private readonly ApplicationDbContext _context;
 
    public AccountController(
       UserManager<ApplicationUser> userManager,
-      RoleManager<IdentityRole> roleManager,
       SignInManager<ApplicationUser> signInManager,
       ApplicationDbContext dbContext
       
    )
    {
       _userManager = userManager;
-      _roleManager = roleManager;
       _context = dbContext;
       _signInManager = signInManager;
    }
    [HttpGet("register")]
    public IActionResult RegisterPatient()
    { 
+      if (_signInManager.IsSignedIn(User))
+      {
+         return RedirectToAction("Index", "Home", new {area=""});
+      }
+      
       ViewBag.Cities = new SelectList(_context.Cities.ToList(), "Id", "Name");
       return View();
    }
    [HttpGet("login")]
    public IActionResult Login()
    {
+      if (_signInManager.IsSignedIn(User))
+      {
+         return RedirectToAction("Index", "Home", new {area=""});
+      }
       return View();
    }
    [HttpPost("register")]
    public async Task<IActionResult> RegisterPatient(RegisterPatientViewModel model)
    {
+      
+      if (_signInManager.IsSignedIn(User))
+      {
+         return RedirectToAction("Index", "Home", new {area=""});
+      }
      
       if (!ModelState.IsValid)
       {
@@ -87,7 +98,7 @@ public class AccountController : Controller
          
          await _signInManager.SignInAsync(user, false);
          
-         return RedirectToAction("Index", "Home");
+         return RedirectToAction("Index", "Home", new {area = ""});
 
 
       } 
@@ -105,11 +116,42 @@ public class AccountController : Controller
 
       if (result.Succeeded)
       {
-         return RedirectToAction("Index", "Home", new {area = ""});
-      }
+         var user = await _userManager.FindByNameAsync(model.Email);
+         
+         if (user != null)
+         {
+            var roles = await _userManager.GetRolesAsync(user);
+            
+            if (roles.Contains("Patient"))
+            {
+               return RedirectToAction("Index", "Home", new {area = ""});
+            }
+
+            if (roles.Contains("Doctor"))
+            {
+               return RedirectToAction("Index", "Home", new {area = "Doctor"});
+            }
+
+            if (roles.Contains("Admin"))
+            {
+               return RedirectToAction("Index", "Home", new {area = "Admin"});
+            }
+         }
+
+         
+      } 
+
 
       ViewBag.ErrorMessage = "Неуспешна најава. Проверете ја е-поштата и лозинката.";
       return View(model);
 
+   }
+
+   [HttpPost("logout")]
+   public async Task<IActionResult> Logout()
+   {
+      await _signInManager.SignOutAsync();
+
+      return RedirectToAction("Index", "Home", new { area = "" });
    }
 }
