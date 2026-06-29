@@ -17,7 +17,7 @@
                 <div class="card-body p-4">
                     <p class="text-muted small mb-4">Пребарајте пациент по ЕМБГ за негово доделување на доктор.</p>
 
-                    <form asp-action="AddPatientToDoctor" asp-route-patientId="" method="post">
+                    <form asp-action="AddPatientToDoctor"  method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3 fw-bold small"></div>
                         <input type="hidden" value="@ViewBag.DoctorId" name="doctorId"/>
                         <div class="mb-3">

@@ -181,7 +181,12 @@ public class DoctorController(
     public async Task<IActionResult> Delete(int id)
     {
         var doctor = await context.Doctors.Include(d => d.ApplicationUser).FirstOrDefaultAsync(d => d.Id == id);
+        var patients = await context.Patients.Where(p => p.PrimaryDoctorId == doctor.Id).ToListAsync();
 
+        foreach (var patient in patients)
+        {
+            patient.PrimaryDoctorId = null;
+        }
         context.Doctors.Remove(doctor!);
         context.Users.Remove(doctor!.ApplicationUser);
         await context.SaveChangesAsync();
