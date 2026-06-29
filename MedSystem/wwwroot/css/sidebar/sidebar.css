@@ -1,0 +1,56 @@
+@charset "UTF-8";
+/* Стилизација за страничното мени (Sidebar) */
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  height: 100vh; /* 100% од висината на екранот */
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+  background-color: #212529; /* Темна елегантна тема */
+  overflow-x: hidden; /* Го спречува хоризонталниот скролер во менито */
+  overflow-y: hidden; /* Го спречува вертикалниот скролер во менито */
+}
+
+.sidebar .nav-link {
+  font-weight: 500;
+  color: #ced4da;
+  padding: 12px 20px;
+  border-radius: 4px; /* Малку заоблени краеви за линковите кога се селектирани */
+  margin: 2px 10px; /* Малку простор околу линковите за помодерен изглед */
+}
+
+.sidebar .nav-link:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link.active {
+  color: #fff;
+  background-color: #0d6efd; /* Сина Bootstrap боја за активен линк */
+}
+
+/* Прилагодување на главниот контејнер за да не оди под менито */
+@media (min-width: 768px) {
+  .sidebar {
+    width: 260px;
+  }
+}
+/* Спречување на хоризонтален скрол на целото тело на страницата */
+body {
+  overflow-x: hidden;
+}
+
+/* Модерни картички со суптилна сенка */
+.card-counter {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  transition: transform 0.2s;
+}
+
+.card-counter:hover {
+  transform: translateY(-3px);
+}
+
+/*# sourceMappingURL=sidebar.css.map */
