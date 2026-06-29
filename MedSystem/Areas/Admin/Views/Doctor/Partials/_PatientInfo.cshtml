@@ -1,0 +1,22 @@
+﻿@model Patient
+
+<div class="card border-success mt-3">
+    <div class="card-header bg-success text-white">
+        <i class="bi bi-person-check-fill me-2"></i> Пронајден Пациент
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Име и презиме:</strong> @Model.ApplicationUser.FirstName @Model.ApplicationUser.LastName</p>
+                <p><strong>ЕМБГ:</strong> @Model.Embg</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Е-пошта:</strong> @Model.ApplicationUser.Email</p>
+                <p><strong>Телефон:</strong> @Model.ApplicationUser.PhoneNumber</p>
+            </div>
+        </div>
+        
+        <input type="hidden" name="patientId" value="@Model.Id" />
+    </div>
+</div>
+
