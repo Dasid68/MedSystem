@@ -33,6 +33,7 @@
 
     <ItemGroup>
       <Folder Include="Areas\Doctor\Models\" />
+      <Folder Include="Data\Migrations\" />
     </ItemGroup>
 
 </Project>

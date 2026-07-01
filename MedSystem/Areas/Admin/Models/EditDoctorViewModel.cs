@@ -21,9 +21,8 @@ public class EditDoctorViewModel
     [Display(Name = "Е-маил адреса")]
     public string Email { get; set; } =  String.Empty;
 
-    [Required(ErrorMessage = "Специјалноста е задолжителна.")]
     [Display(Name = "Медицинска специјалност")]
-    public required int SpecializationId { get; set; }
+    public int? SpecializationId { get; set; }
 
     [Required(ErrorMessage = "Изборот на град е задолжителен.")]
     [Range(1, int.MaxValue, ErrorMessage = "Ве молиме изберете валиден град од листата.")]
