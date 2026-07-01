@@ -1,0 +1,65 @@
+﻿@model Specialization
+
+@{
+    ViewBag.Title = "Додади специјализација";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-primary text-white p-3 rounded-top-3">
+                    <h4 class="mb-0 d-flex align-items-center">
+                        <i class="bi bi-building-add me-2"></i> Новa специјализација
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-4">Внесете ги информациите за специјализацијата за нејзино додавање во системот.</p>
+
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 fw-bold small"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label small fw-bold text-secondary">Име на специјализација</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-check"></i></span>
+                                <input asp-for="Name" class="form-control" placeholder="Општа медицина" />
+                            </div>
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+                        
+                       
+                        @if (ViewBag.Error != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 mb-4" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                                    <div>
+                                        @ViewBag.Error
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        <hr class="text-muted my-4" />
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-arrow-left me-1"></i> Назад
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4 fw-bold">
+                                <i class="bi bi-save me-1"></i> Креирај специјализација
+                            </button>
+                        </div>
+                    </form>
+                    
+                    
+                </div>
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
