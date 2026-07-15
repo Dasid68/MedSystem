@@ -1,0 +1,126 @@
+﻿@model MedSystem.Areas.Admin.Models.EditPatientViewModel
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-primary text-white p-3 rounded-top-3">
+                    <h4 class="mb-0 d-flex align-items-center">
+                        <i class="bi bi-person-plus-fill me-2"></i> Изменете докторски профил
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-4">Внесете нови вредности за информациите кои сакате да ги измените, или оставете ги непроменети.</p>
+
+                    <form asp-action="ConfirmEdit" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 fw-bold small"></div>
+                        <input type="hidden" asp-for="Id"/>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="FirstName" class="form-label small fw-bold text-secondary"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                                    <input asp-for="FirstName" class="form-control" placeholder="на пр. Петар" />
+                                </div>
+                                <span asp-validation-for="FirstName" class="text-danger small"></span>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label asp-for="LastName" class="form-label small fw-bold text-secondary"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                                    <input asp-for="LastName" class="form-control" placeholder="на пр. Петровски" />
+                                </div>
+                                <span asp-validation-for="LastName" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label small fw-bold text-secondary">Е-маил адреса</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Email" class="form-control" placeholder="p.petrovski@medsystem.com" />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="PrimaryDoctorId" class="form-label small fw-bold text-secondary"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-patch-check"></i></span>
+                                    <select asp-for="PrimaryDoctorId" class="form-select" asp-items="ViewBag.Doctors">
+                                        <option value="">Изберете матичен лекар</option>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="PrimaryDoctorId" class="text-danger small"></span>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label asp-for="CityId" class="form-label small fw-bold text-secondary">Град на живеење</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-geo-alt"></i></span>
+                                    <select asp-for="CityId" class="form-select" asp-items="ViewBag.Cities">
+                                        <option value="">-- Изберете град --</option>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="CityId" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label small fw-bold text-secondary">Адреса на живеење</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-pin-map"></i></span>
+                                <input asp-for="Address" class="form-control" placeholder="ул.Партизански Одреди"/>
+                            </div>
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="PhoneNumber" class="form-label small fw-bold text-secondary">Телефонски број</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-telephone"></i></span>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="07XXXXXXX" ></input>
+                            </div>
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+                       
+                        @if (ViewBag.Error != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 mb-4" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                                    <div>
+                                        @ViewBag.Error
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        <hr class="text-muted my-4" />
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-arrow-left me-1"></i> Назад
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4 fw-bold">
+                                <i class="bi bi-save me-1"></i> Измени профил
+                            </button>
+                        </div>
+                    </form>
+                    
+                    
+                </div>
+                
+                
+            </div>
+        </div>
+    </div>
+</div>

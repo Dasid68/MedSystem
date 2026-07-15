@@ -193,5 +193,7 @@ public class DoctorController(
         
         return RedirectToAction("Index", "Doctor", new { area = "Admin" });
     }
+
+    
     
 }

@@ -1,0 +1,23 @@
+﻿@model IEnumerable<Doctor>
+
+<div class="list-group shadow">
+    @if (!Model.Any())
+    {
+        <div class="list-group-item text-muted">Не се пронајдени доктори</div>
+    }
+    else
+    {
+        @foreach (var doctor in Model)
+        {
+            <button type="button" 
+                    class="list-group-item list-group-item-action doctor-select-item" 
+                    data-id="@doctor.Id" 
+                    data-fullname="@doctor.ApplicationUser?.FirstName @doctor.ApplicationUser?.LastName">
+                <div class="d-flex justify-content-between align-items-center">
+                    <strong>@doctor.ApplicationUser?.FirstName @doctor.ApplicationUser?.LastName</strong>
+                </div>
+            </button>
+        }
+    }
+</div>
+

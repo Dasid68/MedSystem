@@ -1,0 +1,94 @@
+﻿@using System.Globalization
+@model Patient
+
+<div class="row g-3">
+
+    
+    <div class="col-md-6">
+        <div class="p-3 bg-light rounded-3 h-100">
+            <span class="text-muted d-block small fw-semibold text-uppercase">Име</span>
+            <strong class="text-dark">@(Model.ApplicationUser?.FirstName)</strong>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="p-3 bg-light rounded-3 h-100">
+            <span class="text-muted d-block small fw-semibold text-uppercase">Презиме</span>
+            <strong class="text-dark">@(Model.ApplicationUser?.LastName)</strong>
+        </div>
+    </div>
+   
+    <div class="col-md-6">
+        <div class="p-3 bg-light rounded-3 h-100">
+            <span class="text-muted d-block small fw-semibold text-uppercase">Телефонски број</span>
+            <strong class="text-dark">@(Model.ApplicationUser?.PhoneNumber )</strong>
+        </div>
+    </div>
+    
+
+    <div class="col-md-6">
+        <div class="p-3 bg-light rounded-3 h-100">
+            <span class="text-muted d-block small fw-semibold text-uppercase">Е-адреса</span>
+            <strong class="text-dark">@Model.ApplicationUser?.Email</strong>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="p-3 bg-light rounded-3 h-100">
+            <span class="text-muted d-block small fw-semibold text-uppercase">Адреса</span>
+            <strong class="text-dark">@(Model.ApplicationUser?.Address )</strong>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="p-3 bg-light rounded-3 h-100">
+            <span class="text-muted d-block small fw-semibold text-uppercase">Град</span>
+            <strong class="text-dark">@(Model.ApplicationUser?.City.Name )</strong>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="p-3 bg-light rounded-3 h-100">
+            <span class="text-muted d-block small fw-semibold text-uppercase">Датум на раѓање</span>
+            <strong class="text-dark">@(Model.DateOfBirth.ToString("d MMMM yyyy", new CultureInfo("mk-MK")) )</strong>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="p-3 bg-light rounded-3 h-100">
+            <span class="text-muted d-block small fw-semibold text-uppercase">ЕМБГ</span>
+            <strong class="text-dark">@(Model.Embg )</strong>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="p-3 bg-light rounded-3 h-100">
+            <span class="text-muted d-block small fw-semibold text-uppercase">Пол</span>
+            <strong class="text-dark">
+                @Html.DisplayFor(m => m.Gender)
+            </strong>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="p-3 bg-light rounded-3 h-100">
+            <span class="text-muted d-block small fw-semibold text-uppercase mb-1">Матичен лекар</span>
+            @if (Model.PrimaryDoctor != null)
+            {
+                <div class="d-flex align-items-center">
+                  
+                    <div>
+                        <strong class="text-dark d-block">
+                            д-р @Model.PrimaryDoctor.ApplicationUser?.FirstName @Model.PrimaryDoctor.ApplicationUser?.LastName
+                        </strong>
+                        <small class="text-muted">@Model.PrimaryDoctor.ApplicationUser?.Email</small>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex align-items-center">
+                    
+                    <strong class="text-danger">Нема доделено матичен лекар</strong>
+                </div>
+            }
+        </div>
+    </div>
+</div>
