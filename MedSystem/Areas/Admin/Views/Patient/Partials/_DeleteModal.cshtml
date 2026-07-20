@@ -1,0 +1,28 @@
+﻿<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Потврда за бришење
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <form asp-action="Delete" method="post">
+                <div class="modal-body">
+                    <p>Дали сте сигурни дека сакате да го избришете пациентот <strong id="patientNameToDelete"></strong>?</p>
+                    <p class="text-danger"><small>Оваа акција е неповратна.</small></p>
+                    
+                    <input type="hidden" name="id" id="patientIdToDelete"  value="" />
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Откажи</button>
+                    <button type="submit" class="btn btn-danger">
+                        Потврди
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

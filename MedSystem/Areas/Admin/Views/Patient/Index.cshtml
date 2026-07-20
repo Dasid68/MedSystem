@@ -1,8 +1,135 @@
-﻿@model Patient
+﻿@model IEnumerable<Patient>
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = "Пациенти";
     Layout = "_LayoutAdmin";
 }
 
-<h2>Patient page in admin area</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-stethoscope me-2 text-primary"></i> Менаџирање со пациенти</h2>
+</div>
+
+<div class="card card-counter border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Име и презиме</th>
+                    <th>Е-маил</th>
+                    <th>Матичен лекар</th>
+                    <th class="text-end pe-4">Акции</th>
+                </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">Нема пронајдено доктори во системот.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var patient in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold ps-4">@patient.ApplicationUser.FirstName @patient.ApplicationUser.LastName</td>
+                            <td>@patient.ApplicationUser.Email</td> 
+                            <td>
+                                @patient.PrimaryDoctor?.ApplicationUser.FirstName @patient.PrimaryDoctor?.ApplicationUser.LastName
+                            </td>
+                            <td class="text-end pe-4">
+                                
+                                <button type="button"
+                                        class="btn btn-outline-info btn-sm open-details-modal"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#detailsModal"
+                                        data-id="@patient.Id">
+                                    <i class="bi bi-eye-fill me-1"></i>Детали
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-outline-danger btn-sm open-delete-modal"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal"
+                                        data-id="@patient.Id"
+                                        data-name="@patient.ApplicationUser.FirstName @patient.ApplicationUser.LastName">
+                                    <i class="bi bi-trash"></i> Избриши
+                                </button>
+
+                                <a class="btn btn-outline-warning btn-sm" asp-action="Edit" asp-route-id="@patient.Id">
+                                    <i class="bi bi-pencil me-1"></i>Измени
+                                </a>
+                                <a class="btn btn-outline-secondary btn-sm" asp-action="AssignDoctor" asp-controller="Patient" asp-area="Admin" asp-route-id="@patient.Id">
+                                    <i class="bi bi-person-add me-1"></i>Додели матичен лекар
+                                </a>
+
+                            </td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<partial name="Partials/_DeleteModal"/>
+<partial name="Partials/_DetailsModal"/>
+
+@section Scripts
+{
+    <script>
+        const openModalButtons = document.querySelectorAll(".open-delete-modal")
+        const deleteModal = document.getElementById("deleteModal");
+       
+        const openDetailsModalButtons = document.querySelectorAll(".open-details-modal");
+        const detailsModal = document.getElementById("detailsModal");
+        
+        detailsModal.addEventListener("show.bs.modal", (e) => {
+            const button = e.relatedTarget
+            
+            const patientId = button.dataset.id
+            
+            console.log(patientId)
+
+            const modalBody = document.getElementById("modalBody")
+            fetch(`/Admin/Patient/GetPatientDetails?id=${patientId}`)
+                .then(res => {
+                    if(!res.ok){
+                        throw new Error("Грешка")
+                    }
+                    console.log(res)
+                    return res.text();
+                })
+                .then(html => {
+                    modalBody.innerHTML = html;
+                })
+                .catch(err => {
+                    modalBody.innerHTML =
+                        `
+                        <div class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> ${err.message}
+                        </div>`
+                })
+            
+        })
+        
+        deleteModal.addEventListener("show.bs.modal", (e) => { 
+            const button = e.relatedTarget
+
+            const patientId = button.getAttribute('data-id');
+            const patientName = button.getAttribute('data-name');
+            
+           
+           
+
+            document.getElementById('patientIdToDelete').value = patientId;
+            document.getElementById('patientNameToDelete').textContent = patientName;
+        })
+        
+        
+        
+    </script>
+}
+

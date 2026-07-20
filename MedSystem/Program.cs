@@ -57,6 +57,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
 }
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
 else
 {
     app.UseExceptionHandler("/Home/Error");
