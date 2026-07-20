@@ -1,11 +1,13 @@
-﻿using MedSystem.Data;
+﻿using MedSystem.Areas.Admin.Models;
+using MedSystem.Data;
 using MedSystem.Models;
+using MedSystem.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedSystem.Areas.Admin.Controllers;
 
-public class SpecializationController(ApplicationDbContext context) : AdminBaseController
+public class SpecializationController(ApplicationDbContext context, ISystemLogService logService) : AdminBaseController
 {
     
     public IActionResult Index()
@@ -39,8 +41,17 @@ public class SpecializationController(ApplicationDbContext context) : AdminBaseC
         
         Console.WriteLine(model);
         var spec = await context.Specializations.FindAsync(model.Id);
+        var oldName = spec.Name;
+        var newName = model.Name;
         spec!.Name = model.Name;
         await context.SaveChangesAsync();
+        
+        await logService.LogAsync(
+            message: $"Специјализацијата '{oldName}' е преименувана во '{newName}'",
+            action: LogAction.Update,
+            logType: LogType.Info,
+            performedBy: User.Identity?.Name
+        );
         
         return RedirectToAction("Index", "Specialization", new { area = "Admin" });
     }
@@ -55,6 +66,14 @@ public class SpecializationController(ApplicationDbContext context) : AdminBaseC
     {
         context.Specializations.Add(specialization);
         await context.SaveChangesAsync();
+        
+        await logService.LogAsync(
+            message: $"Додадена е нова специјализација: '{specialization.Name}'",
+            action: LogAction.Create,
+            logType: LogType.Success,
+            performedBy: User.Identity?.Name
+        );
+        
         return RedirectToAction("Index", "Specialization", new { area = "Admin" });
     }
 
@@ -70,6 +89,14 @@ public class SpecializationController(ApplicationDbContext context) : AdminBaseC
         
         context.Specializations.Remove(spec!);
         await context.SaveChangesAsync();
+        
+        await logService.LogAsync(
+            message: $"Избришана е специјализацијата: '{spec.Name}'",
+            action: LogAction.Delete,
+            logType: LogType.Danger,
+            performedBy: User.Identity?.Name
+        );
+        
         return RedirectToAction("Index", "Specialization", new { area = "Admin" });
     }
 

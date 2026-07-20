@@ -1,4 +1,5 @@
-﻿using MedSystem.Models;
+﻿using MedSystem.Areas.Admin.Models;
+using MedSystem.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Referral> Referrals { get; set; }
     public DbSet<Specialization> Specializations { get; set; }
     public DbSet<Prescription> Prescriptions { get; set; }
+    
+    public DbSet<SystemLog> SystemLogs { get; set; }
     
     protected override void OnModelCreating(ModelBuilder builder)
     {

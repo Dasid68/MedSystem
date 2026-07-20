@@ -1,6 +1,151 @@
-﻿@{
-    ViewBag.Title = "title";
-    Layout = "_LayoutAdmin";
+﻿@model MedSystem.Areas.Admin.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Контролна Табла";
 }
 
-<h2>Admin page</h2>
+<div class="container-fluid py-3">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Контролна Табла</h2>
+            <p class="text-muted mb-0">Системски преглед и последни активности</p>
+        </div>
+        <span class="badge bg-light text-dark p-2 fs-6 border">
+            <i class="bi bi-calendar3 me-1"></i> @DateTime.Now.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("mk-MK"))
+        </span>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted fw-semibold small d-block">Пациенти</span>
+                        <h3 class="fw-bold text-dark mb-0">@Model.TotalPatients</h3>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-4">
+                        <i class="bi bi-people fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted fw-semibold small d-block">Доктори</span>
+                        <h3 class="fw-bold text-dark mb-0">@Model.TotalDoctors</h3>
+                    </div>
+                    <div class="bg-success bg-opacity-10 text-success p-3 rounded-4">
+                        <i class="bi bi-person-badge fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted fw-semibold small d-block">Денешни Прегледи</span>
+                        <h3 class="fw-bold text-dark mb-0">@Model.TodayAppointments</h3>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-4">
+                        <i class="bi bi-calendar-check fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted fw-semibold small d-block">Вкупно Корисници</span>
+                        <h3 class="fw-bold text-dark mb-0">@Model.TotalUsers</h3>
+                    </div>
+                    <div class="bg-info bg-opacity-10 text-info p-3 rounded-4">
+                        <i class="bi bi-shield-lock fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">Новорегистрирани Пациенти</h5>
+                    <a asp-area="Admin" asp-controller="Patient" asp-action="Index" class="btn btn-sm btn-light text-primary fw-semibold">
+                        Сите пациенти
+                    </a>
+                </div>
+                <div class="card-body px-4">
+                    @if (Model.RecentPatients.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Пациент</th>
+                                        <th>Град</th>
+                                        <th class="text-end">Акција</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var patient in Model.RecentPatients)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="fw-bold">@patient.ApplicationUser.FirstName @patient.ApplicationUser.LastName</div>
+                                                <div class="text-muted small">@patient.ApplicationUser.Email</div>
+                                            </td>
+                                            <td><span class="badge bg-light text-dark border">@patient.ApplicationUser.City.Name</span></td>
+                                            <td class="text-end">
+                                                <a asp-area="Admin" asp-controller="Patient" asp-action="Details" asp-route-id="@patient.Id" class="btn btn-sm btn-outline-info rounded-3">
+                                                    Детали
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-people fs-1 d-block mb-2"></i>
+                            <p class="mb-0">Нема пронајдено регистрирани пациенти.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-journal-text me-2"></i>Системски Дневник</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="list-group list-group-flush border-0">
+                        @foreach (var log in Model.RecentLogs)
+                        {
+                            <div class="list-group-item border-0 px-0 py-2">
+                                <div class="d-flex align-items-start">
+                                    <span class="badge bg-@(log.LogType.ToString().ToLower()) me-3 mt-1 p-2 rounded-circle"> </span>
+                                    <div>
+                                        <p class="mb-0 small fw-semibold text-dark">@log.Message</p>
+                                        <small class="text-muted" style="font-size: 0.75rem;">
+                                            @log.Timestamp.ToString("HH:mm") (@log.Timestamp.ToString("dd.MM.yyyy"))
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
