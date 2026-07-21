@@ -85,28 +85,32 @@
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="table-light">
-                                    <tr>
-                                        <th>Пациент</th>
-                                        <th>Град</th>
-                                        <th class="text-end">Акција</th>
-                                    </tr>
+                                <tr>
+                                    <th>Пациент</th>
+                                    <th>Град</th>
+                                    <th class="text-end">Акција</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var patient in Model.RecentPatients)
-                                    {
-                                        <tr>
-                                            <td>
-                                                <div class="fw-bold">@patient.ApplicationUser.FirstName @patient.ApplicationUser.LastName</div>
-                                                <div class="text-muted small">@patient.ApplicationUser.Email</div>
-                                            </td>
-                                            <td><span class="badge bg-light text-dark border">@patient.ApplicationUser.City.Name</span></td>
-                                            <td class="text-end">
-                                                <a asp-area="Admin" asp-controller="Patient" asp-action="Details" asp-route-id="@patient.Id" class="btn btn-sm btn-outline-info rounded-3">
-                                                    Детали
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    }
+                                @foreach (var patient in Model.RecentPatients)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">@patient.ApplicationUser.FirstName @patient.ApplicationUser.LastName</div>
+                                            <div class="text-muted small">@patient.ApplicationUser.Email</div>
+                                        </td>
+                                        <td><span class="badge bg-light text-dark border">@patient.ApplicationUser.City.Name</span></td>
+                                        <td class="text-end">
+                                            <button type="button"
+                                                    class="btn btn-outline-info btn-sm open-details-modal"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#detailsModal"
+                                                    data-id="@patient.Id">
+                                                Детали
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
                                 </tbody>
                             </table>
                         </div>
@@ -152,3 +156,51 @@
         </div>
     </div>
 </div>
+
+<partial name="../Patient/Partials/_DetailsModal"/>
+
+
+@section Scripts
+{
+    <script>
+        const openModalButtons = document.querySelectorAll(".open-delete-modal")
+        const deleteModal = document.getElementById("deleteModal");
+       
+        const openDetailsModalButtons = document.querySelectorAll(".open-details-modal");
+        const detailsModal = document.getElementById("detailsModal");
+        
+        detailsModal.addEventListener("show.bs.modal", (e) => {
+            const button = e.relatedTarget
+            
+            const patientId = button.dataset.id
+            
+            console.log(patientId)
+
+            const modalBody = document.getElementById("modalBody")
+            fetch(`/Admin/Patient/GetPatientDetails?id=${patientId}`)
+                .then(res => {
+                    if(!res.ok){
+                        throw new Error("Грешка")
+                    }
+                    console.log(res)
+                    return res.text();
+                })
+                .then(html => {
+                    modalBody.innerHTML = html;
+                })
+                .catch(err => {
+                    modalBody.innerHTML =
+                        `
+                        <div class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> ${err.message}
+                        </div>`
+                })
+            
+        })
+        
+      
+        
+        
+        
+    </script>
+}
