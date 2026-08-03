@@ -9,6 +9,8 @@
 
 <div class="card-body p-0">
     <div class="table-responsive">
+    @if (Model.Any())
+    {
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
             <tr>
@@ -20,25 +22,33 @@
             </tr>
             </thead>
             <tbody>
-            
-            @if (Model.Any())
-            {
-                @foreach (var prescription in Model)
-                {
-                    <tr>
-                        <td class="ps-3 fw-bold">@prescription.Medication</td>
-                        <td>@prescription.Instructions</td>
-                        <td>@prescription.Doctor.ApplicationUser.FirstName + " " + @prescription.Doctor.ApplicationUser.LastName[0] + "."</td>
-                        <td>@prescription.ExpirationDate</td>
-                        <td><span class="badge bg-success-subtle text-success rounded-pill">Активен</span></td>
-                        @* <td><span class="badge bg-warning-subtle text-warning rounded-pill">Неподигнат</span></td> *@
 
-                    </tr>
-                }
+
+            @foreach (var prescription in Model)
+            {
+                <tr>
+                    <td class="ps-3 fw-bold">@prescription.Medication</td>
+                    <td>@prescription.Instructions</td>
+                    <td>@prescription.Doctor.ApplicationUser.FirstName + " " + @prescription.Doctor.ApplicationUser.LastName[0] + "."</td>
+                    <td>@prescription.ExpirationDate</td>
+                    <td><span class="badge bg-success-subtle text-success rounded-pill">Активен</span></td>
+                    @* <td><span class="badge bg-warning-subtle text-warning rounded-pill">Неподигнат</span></td> *@
+
+                </tr>
             }
-            
+
+
             </tbody>
         </table>
+    }
+    else
+    {
+        <div class="p-4">
+            <div class="alert alert-light border-0 bg-light text-center mb-0 py-4 rounded-3">
+                <span class="text-secondary fw-semibold">Немате активни рецепти во моментот.</span>
+            </div>
+        </div>
+    }
     </div>
 </div>
 </div>

@@ -1,0 +1,140 @@
+﻿@model ApplicationUser
+@* Model е doctorId на матичниот лекар на најавениот пациент *@
+
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@7.0.2/skeleton.css' rel='stylesheet' />
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@7.0.2/themes/monarch/theme.css' rel='stylesheet' />
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@7.0.2/themes/monarch/palettes/purple.css' rel='stylesheet' />
+
+<link href='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css' rel='stylesheet'>
+<link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css' rel='stylesheet'>
+
+<div class="modal fade" id="bookAppointmentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookModalTitle">Закажи преглед кај матичен лекар</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+
+                <div id="calendarStep">
+                    <div id="calendar"></div>
+                    
+                </div>
+
+                <div id="slotsStep" class="d-none">
+                    <button type="button" class="btn btn-sm btn-link mb-2 px-0" id="backToCalendarBtn">
+                        <i class="bi bi-arrow-left"></i> Назад кон календар
+                    </button>
+                    <h6>Достапни термини — <span id="modalDate"></span></h6>
+                    <div id="slotsLoading" class="text-center text-muted py-3">
+                        <div class="spinner-border spinner-border-sm me-2"></div> Вчитување...
+                    </div>
+                    <div id="slotsGrid" class="d-flex flex-wrap gap-2"></div>
+                    <p id="noSlotsMsg" class="text-muted d-none">Нема слободни термини за овој датум.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const doctorId = @Model.Patient?.PrimaryDoctorId;
+        const patientId = @Model.Patient?.Id
+        
+        let calendarInstance = null;
+        const modalEl = document.getElementById('bookAppointmentModal');
+        //const bsModal = new bootstrap.Modal(modalEl);
+
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const firstDayOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+        
+   
+        modalEl.addEventListener('shown.bs.modal', function () {
+          if(!calendarInstance) {
+              calendarInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
+                  themeSystem:'bootstrap5',
+                  initialView: 'dayGridMonth',
+                  locale: 'MK',
+                  height: 500,
+                  validRange: {
+                      start: firstDayOfMonth,
+                      end: firstDayOfNextMonth,
+                  },
+                  headerToolbar: {
+                      left: '',           
+                      center: 'title',
+                      right: ''
+                  },
+                  dateClick: function (info) {
+                      showSlotsStep(info.dateStr);
+                  }
+              });
+              calendarInstance.render();
+          }
+            
+        });
+
+       
+        modalEl.addEventListener('hidden.bs.modal', function () {
+            document.getElementById('calendarStep').classList.remove('d-none');
+            document.getElementById('slotsStep').classList.add('d-none');
+        });
+
+        document.getElementById('backToCalendarBtn').addEventListener('click', function () {
+            document.getElementById('slotsStep').classList.add('d-none');
+            document.getElementById('calendarStep').classList.remove('d-none');
+        });
+
+        function showSlotsStep(dateStr) {
+            document.getElementById('calendarStep').classList.add('d-none');
+            document.getElementById('slotsStep').classList.remove('d-none');
+            document.getElementById('modalDate').textContent = dateStr;
+            document.getElementById('slotsGrid').innerHTML = '';
+            document.getElementById('noSlotsMsg').classList.add('d-none');
+            document.getElementById('slotsLoading').classList.remove('d-none');
+
+            fetch(`/Appointments/GetAvailableSlots?date=${dateStr}`)
+                .then(res => res.json())
+                .then(slots => {
+                    document.getElementById('slotsLoading').classList.add('d-none');
+                    const grid = document.getElementById('slotsGrid');
+
+                    if (slots.length === 0) {
+                        document.getElementById('noSlotsMsg').classList.remove('d-none');
+                        return;
+                    }
+
+                    slots.forEach(slot => {
+                        const btn = document.createElement('button');
+                        btn.className = 'btn btn-outline-primary btn-sm';
+                        btn.textContent = slot.display;
+                        btn.onclick = () => confirmBooking(dateStr, slot.time, slot.display);
+                        grid.appendChild(btn);
+                    });
+                });
+        }
+
+        function confirmBooking(dateStr, time, display) {
+            if (!confirm(`Да го потврдам терминот за ${dateStr} во ${display}?`)) return;
+
+            fetch('/Appointments/Confirm', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `date=${dateStr}&time=${time}`
+            }).then(res => {
+                if (res.ok) {
+                    bsModal.hide();
+                    window.location.href = '/';
+                } else {
+                    alert('Терминот веќе е зафатен, изберете друг.');
+                    showSlotsStep(dateStr);
+                }
+            });
+        }
+    })();
+</script>
+

@@ -3,7 +3,7 @@
     ViewData["Title"] = "Почетна страница";
 }
 
-<div class="container py-4">
+<div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col">
             <h2 class="fw-bold text-dark mb-1">@if (DateTime.Now.Hour < 19)
@@ -102,7 +102,7 @@
                 </div>
                 <div class="card-body pt-0">
                     <div class="d-grid gap-2">
-                        <a href="#" class="btn btn-outline-primary text-start p-3 rounded-3">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#bookAppointmentModal" data-userId="@Model.Id" class="btn btn-outline-primary text-start p-3 rounded-3">
                             <i class="bi bi-calendar-plus me-2 fs-5 align-middle"></i> Закажи нов преглед
                         </a>
                         <a href="#" class="btn btn-outline-secondary text-start p-3 rounded-3">
@@ -122,17 +122,17 @@
                             <i class="bi bi-person-heart fs-1"></i>
                         </div>
                     </div>
-                    <h5 class="fw-bold mb-1">д-р Марија Тодоровска</h5>
+                    <h5 class="fw-bold mb-1">д-р @Model.Patient!.PrimaryDoctor?.ApplicationUser.FirstName @Model.Patient!.PrimaryDoctor?.ApplicationUser.FirstName</h5>
                     <p class="text-primary small mb-3">Ваш Матичен Лекар</p>
                     
-                    <hr class="text-muted opacity-25My">
+                    <hr class="text-muted opacity-25">
                     
                     <div class="text-start mb-3">
                         <div class="d-flex align-items-center mb-2 small text-muted">
-                            <i class="bi bi-telephone me-2 text-secondary"></i> +389 2 3100 200
+                            <i class="bi bi-telephone me-2 text-secondary"></i> @Model.Patient!.PrimaryDoctor?.ApplicationUser.PhoneNumber
                         </div>
                         <div class="d-flex align-items-center small text-muted">
-                            <i class="bi bi-envelope me-2 text-secondary"></i> m.todorovska@medsystem.mk
+                            <i class="bi bi-envelope me-2 text-secondary"></i> @Model.Patient!.PrimaryDoctor?.ApplicationUser.Email
                         </div>
                     </div>
                     
@@ -143,3 +143,10 @@
         </div>
     </div>
 </div>
+
+
+<partial name="Partials/_BookAppointment" model="@Model"/>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+}

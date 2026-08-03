@@ -7,38 +7,50 @@
         <a href="#" class="btn btn-link btn-sm text-decoration-none p-0">Сите упати</a>
     </div>
     <div class="card-body p-0">
+        
+        
         <div class="table-responsive">
+            @if (Model.Any())
+            {
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
-                    <tr>
-                        <th class="ps-3 text-secondary small">Упатен за</th>
-                        <th class="text-secondary small">Институција / Клиника</th>
-                        <th class="text-secondary small">Од лекар</th>
-                        <th class="pe-3 text-secondary small text-end">Акција</th>
-                    </tr>
+                <tr>
+                    <th class="ps-3 text-secondary small">Упатен за</th>
+                    <th class="text-secondary small">Институција / Клиника</th>
+                    <th class="text-secondary small">Од лекар</th>
+                    <th class="pe-3 text-secondary small text-end">Акција</th>
+                </tr>
                 </thead>
                 <tbody>
-                
-                @if (Model.Any())
-                {
-                    @foreach (var referral in Model)
-                    {
-                        <tr>
-                            <td class="ps-3">
-                                <div class="fw-bold">@referral.ReferringSpecialization</div>
-                            </td>
-                            <td>@referral.MedicalInstitution</td>
-                            <td>@referral.ReferringDoctor</td>
-                            // TODO: Napravi kopceto i soodvetna stranica
-                            <td class="pe-3 text-end">
-                                <a href="#" class="btn btn-light btn-sm rounded-3 text-primary border">Прикажи повеќе</a>
 
-                            </td>
-                        </tr>
-                    }
+
+                @foreach (var referral in Model)
+                {
+                    <tr>
+                        <td class="ps-3">
+                            <div class="fw-bold">@referral.ReferringSpecialization</div>
+                        </td>
+                        <td>@referral.MedicalInstitution</td>
+                        <td>@referral.ReferringDoctor</td>
+                        // TODO: Napravi kopceto i soodvetna stranica
+                        <td class="pe-3 text-end">
+                            <a href="#" class="btn btn-light btn-sm rounded-3 text-primary border">Прикажи повеќе</a>
+
+                        </td>
+                    </tr>
                 }
+
                 </tbody>
             </table>
+            }
+            else
+            {
+                <div class="p-4">
+                    <div class="alert alert-light border-0 bg-light text-center mb-0 py-4 rounded-3">
+                        <span class="text-secondary fw-semibold">Немате активни упати во моментот.</span>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>

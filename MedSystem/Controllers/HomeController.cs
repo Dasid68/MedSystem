@@ -39,7 +39,11 @@ public class HomeController(
         
         string userEmail = User.FindFirstValue(ClaimTypes.Email)!;
 
-        var user = context.Users.Include(u => u.Patient).ThenInclude(p => p.Referrals).FirstOrDefault(u => u.Email == userEmail);
+        var user = context.Users.
+            Include(u => u.Patient)
+            .ThenInclude(p => p.PrimaryDoctor)
+            .ThenInclude(d => d.ApplicationUser)
+            .FirstOrDefault(u => u.Email == userEmail);
         
         
         return View(user);

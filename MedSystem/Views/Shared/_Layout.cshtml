@@ -1,5 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
+
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLower();
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,25 +17,34 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/MedSystem.styles.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/css/sidebar/sidebar.css" asp-append-version="true">
+    
+    @* Calendar *@
+    
+    @* <link href='https://cdn.jsdelivr.net/npm/fullcalendar@7.0.2/skeleton.css' rel='stylesheet' /> *@
+    @* <link href='https://cdn.jsdelivr.net/npm/fullcalendar@7.0.2/themes/monarch/theme.css' rel='stylesheet' /> *@
+    @* <link href='https://cdn.jsdelivr.net/npm/fullcalendar@7.0.2/themes/monarch/palettes/purple.css' rel='stylesheet' /> *@
 </head>
 <body>
 
 <div class="container-fluid">
-    <div class="row">
-        
+    <div class="row d-flex flex-column">
+
         <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse bg-dark">
             <div class="position-sticky pt-3 d-flex flex-column h-100 ">
-                
+
                 <div class="text-center mb-4 text-white px-3">
                     <i class="bi bi-heart-pulse-fill text-primary fs-1"></i>
                     <h5 class="mt-2 fw-bold">MedSystem</h5>
                     @if (SignInManager.IsSignedIn(User))
                     {
-                        <span class="badge bg-secondary">Активен Корисник</span>
+                        <div class="d-flex align-items-center justify-content-center gap-2 mt-2">
+                            <span class="fw-semibold badge rounded-pill bg-secondary px-3 py-2">Корисник</span>
+                            @await Component.InvokeAsync("NotificationBell")
+                        </div>
                     }
                 </div>
                 <hr class="text-secondary" />
-                
+
                 <ul class="nav flex-column flex-nowrap flex-grow-1 pb-2">
                     <li class="nav-item">
                         <a class="nav-link active text-white" href="#">
@@ -57,7 +71,7 @@
                             <i class="bi bi-clipboard-data me-2"></i> Лаб. резултати
                         </a>
                     </li>
-                    
+
                     @if (!SignInManager.IsSignedIn(User))
                     {
                         <li class="nav-item mt-auto">
@@ -82,18 +96,20 @@
             </div>
         </nav>
 
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 p-5">
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 p-5 flex-grow-1">
             <div class="flex-grow-1 pb-5">
                 @RenderBody()
             </div>
-            
+
             <footer class="border-top footer text-muted pt-3 pb-3 mt-auto">
                 <p class="mb-0">&copy; @DateTime.Today.Year - MedSystem - <a asp-area="" asp-controller="Home" asp-action="Privacy">Приватност</a></p>
             </footer>
         </main>
-        
+
     </div>
 </div>
+
+
 
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
