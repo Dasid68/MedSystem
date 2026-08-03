@@ -1,6 +1,7 @@
 ﻿using MedSystem.Areas.Admin.Models;
 using MedSystem.Data;
 using MedSystem.Models;
+using MedSystem.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,7 +15,8 @@ using DoctorModel = MedSystem.Models.Doctor;
 
 public class DoctorController(
     UserManager<ApplicationUser> userManager,
-    ApplicationDbContext context
+    ApplicationDbContext context,
+    ISystemLogService logService
     ) : AdminBaseController
 {
     public async Task<IActionResult> Index()
@@ -71,6 +73,15 @@ public class DoctorController(
 
                 context.Doctors.Add(doctor);
                 await context.SaveChangesAsync();
+
+                await logService.LogAsync(
+                    message: $"Креиран е нов докторски профил: д-р {user.FirstName} {user.LastName}",
+                    action: LogAction.Create,
+                    logType: LogType.Success,
+                    performedBy: User.Identity?.Name
+                );
+                
+                
                 return RedirectToAction("Index", "Doctor", new { area = "Admin" });
 
 
@@ -128,6 +139,13 @@ public class DoctorController(
         doctor.SpecializationId = model.SpecializationId;
 
         await context.SaveChangesAsync();
+        
+        await logService.LogAsync(
+            message: $"Ажуриран е профилот на д-р {doctor.ApplicationUser.FirstName} {doctor.ApplicationUser.LastName}",
+            action: LogAction.Update,
+            logType: LogType.Info,
+            performedBy: User.Identity?.Name
+        );
         
         return RedirectToAction("Index", "Doctor", new { area = "Admin" });
     }
@@ -190,6 +208,13 @@ public class DoctorController(
         context.Doctors.Remove(doctor!);
         context.Users.Remove(doctor!.ApplicationUser);
         await context.SaveChangesAsync();
+        
+        await logService.LogAsync(
+            message: $"Избришан е докторскиот профил на д-р {doctor.ApplicationUser.FirstName} {doctor.ApplicationUser.LastName}",
+            action: LogAction.Delete,
+            logType: LogType.Danger,
+            performedBy: User.Identity?.Name
+        );
         
         return RedirectToAction("Index", "Doctor", new { area = "Admin" });
     }

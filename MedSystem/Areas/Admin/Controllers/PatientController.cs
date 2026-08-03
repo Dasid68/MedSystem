@@ -1,5 +1,6 @@
 ﻿using MedSystem.Areas.Admin.Models;
 using MedSystem.Data;
+using MedSystem.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,8 @@ namespace MedSystem.Areas.Admin.Controllers;
 
 // TODO: Dodadi prebaruvanje na pacienti i doktori
 public class PatientController(
-    ApplicationDbContext context
+    ApplicationDbContext context,
+    ISystemLogService logService
     )
     : AdminBaseController
 {
@@ -77,6 +79,13 @@ public class PatientController(
         
         await context.SaveChangesAsync();
         
+        await logService.LogAsync(
+            message: $"Ажурирани се податоците за пациентот: {patient.ApplicationUser.FirstName} {patient.ApplicationUser.LastName}",
+            action: LogAction.Update,
+            logType: LogType.Info,
+            performedBy: User.Identity?.Name
+        );
+        
         return RedirectToAction("Index", "Patient", new { area = "Admin" });
     }
     public IActionResult AssignDoctor(int id)
@@ -87,9 +96,17 @@ public class PatientController(
 
     public async Task<IActionResult> Delete(int id)
     {
-        var patient = await context.Patients.FindAsync(id);
+        var patient = await context.Patients.Include(p => p.ApplicationUser).FirstOrDefaultAsync(p => p.Id == id);
         context.Patients.Remove(patient!);
         await context.SaveChangesAsync();
+        
+        await logService.LogAsync(
+            message: $"Избришан е профилот на пациентот: {patient.ApplicationUser.FirstName} {patient.ApplicationUser.LastName}",
+            action: LogAction.Delete,
+            logType: LogType.Danger,
+            performedBy: User.Identity?.Name
+        );
+        
         return RedirectToAction("Index", "Patient", new { area = "Admin" });
     }
     

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MedSystem.Data;
 using MedSystem.Models;
+using MedSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
@@ -29,6 +30,8 @@ builder.Services.AddControllersWithViews(options =>
 
     options.Filters.Add(new AuthorizeFilter(policy));
 });
+
+builder.Services.AddScoped<ISystemLogService,  SystemLogService>();
 
 
 builder.Services.ConfigureApplicationCookie(options =>

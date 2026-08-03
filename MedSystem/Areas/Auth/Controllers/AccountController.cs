@@ -1,6 +1,8 @@
-﻿using MedSystem.Models;
+﻿using MedSystem.Areas.Admin.Models;
+using MedSystem.Models;
 using MedSystem.Areas.Auth.Models;
 using MedSystem.Data;
+using MedSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,17 +18,19 @@ public class AccountController : Controller
    private readonly UserManager<ApplicationUser> _userManager;
    private readonly SignInManager<ApplicationUser> _signInManager;
    private readonly ApplicationDbContext _context;
+   private readonly ISystemLogService _logService;
 
    public AccountController(
       UserManager<ApplicationUser> userManager,
       SignInManager<ApplicationUser> signInManager,
-      ApplicationDbContext dbContext
-      
+      ApplicationDbContext dbContext,
+      ISystemLogService logService
    )
    {
       _userManager = userManager;
       _context = dbContext;
       _signInManager = signInManager;
+      _logService = logService;
    }
    [HttpGet("register")]
    public IActionResult RegisterPatient()
@@ -97,6 +101,13 @@ public class AccountController : Controller
          await _context.SaveChangesAsync();
          
          await _signInManager.SignInAsync(user, false);
+         
+         await _logService.LogAsync(
+            message: $"Успешно регистриран нов пациент: {user.FirstName} {user.LastName}",
+            action: LogAction.Create,
+            logType: LogType.Success,
+            performedBy: User.Identity?.Name
+         );
          
          return RedirectToAction("Index", "Home", new {area = ""});
 
