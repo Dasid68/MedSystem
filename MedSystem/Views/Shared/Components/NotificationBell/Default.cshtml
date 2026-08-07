@@ -3,7 +3,7 @@
     var unreadCount = Model.Count(n => !n.IsRead);
 }
 
-<div class="dropdown">
+<div class="dropdown position-relative">
     <a href="#" class="position-relative text-white" data-bs-toggle="dropdown">
         <i class="bi bi-bell fs-5"></i>
         @if (unreadCount > 0)
@@ -16,12 +16,12 @@
     
         @if (Model.Any())
         {
-            <ul class="dropdown-menu dropdown-menu-end">
+            <ul class="dropdown-menu dropdown-menu-start" style="width: 250px;">
         
                 @foreach (var n in Model)
                 {
                     <li>
-                        <a class="dropdown-item @(n.IsRead ? "" : "fw-bold")" href="@(n.Link ?? "#")">
+                        <a class="dropdown-item small text-wrap @(n.IsRead ? "" : "fw-bold")" href="@(n.Link ?? "#")">
                             @n.Message
                             <div class="small text-muted">@n.CreatedAt.ToString("dd.MM HH:mm")</div>
                         </a>

@@ -21,6 +21,7 @@ public class Notification
 public enum NotificationType
 {
     LabResult,
+    AppointmentPending,
     AppointmentConfirmed,
     AppointmentDeclined,
     NewPrescription,

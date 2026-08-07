@@ -33,6 +33,36 @@
                     <div id="slotsGrid" class="d-flex flex-wrap gap-2"></div>
                     <p id="noSlotsMsg" class="text-muted d-none">Нема слободни термини за овој датум.</p>
                 </div>
+                
+                <div id="detailsStep" class="d-none">
+                    <button type="button" class="btn btn-sm btn-link mb-3 px-0 text-decoration-none" id="backToSlotsBtn">
+                        <i class="bi bi-arrow-left"></i> Назад кон термини
+                    </button>
+
+                    <div class="card border-0 bg-light mb-3">
+                        <div class="card-body d-flex align-items-center gap-3 py-3">
+                            <div class="bg-primary-subtle text-primary rounded-3 p-2 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                                <i class="bi bi-calendar-check fs-5"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold" id="detailsDate">—</div>
+                                <div class="text-muted small" id="detailsTime">—</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="bookingReason" class="form-label fw-semibold small">Причина за преглед</label>
+                        <textarea id="bookingReason" class="form-control" rows="3" placeholder="Опишете накратко зошто закажувате преглед..."></textarea>
+                        <div id="reasonError" class="text-danger small mt-1 d-none">Внесете причина за прегледот.</div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-primary btn-sm px-4" id="confirmBookingBtn">
+                            <i class="bi bi-check2 me-1"></i> Потврди термин
+                        </button>
+                    </div>
+                </div>
 
             </div>
         </div>
@@ -82,6 +112,7 @@
         modalEl.addEventListener('hidden.bs.modal', function () {
             document.getElementById('calendarStep').classList.remove('d-none');
             document.getElementById('slotsStep').classList.add('d-none');
+            document.getElementById('detailsStep').classList.add('d-none');
         });
 
         document.getElementById('backToCalendarBtn').addEventListener('click', function () {
@@ -97,7 +128,7 @@
             document.getElementById('noSlotsMsg').classList.add('d-none');
             document.getElementById('slotsLoading').classList.remove('d-none');
 
-            fetch(`/Appointments/GetAvailableSlots?date=${dateStr}`)
+            fetch(`/api/booking/get-slots?date=${dateStr}`)
                 .then(res => res.json())
                 .then(slots => {
                     document.getElementById('slotsLoading').classList.add('d-none');
@@ -111,11 +142,46 @@
                     slots.forEach(slot => {
                         const btn = document.createElement('button');
                         btn.className = 'btn btn-outline-primary btn-sm';
-                        btn.textContent = slot.display;
-                        btn.onclick = () => confirmBooking(dateStr, slot.time, slot.display);
+                        btn.textContent = slot.time;
+                        //btn.onclick = () => confirmBooking(dateStr, slot.time, slot.display);
+                        btn.onclick = () => bookingDetails(dateStr, slot.time)
                         grid.appendChild(btn);
                     });
                 });
+        }
+        
+        function bookingDetails(selectedDate, selectedTime){
+            document.getElementById("slotsStep").classList.add('d-none');
+            document.getElementById("detailsStep").classList.remove('d-none');
+            document.getElementById("detailsDate").textContent = selectedDate;
+            document.getElementById("detailsTime").textContent = selectedTime;
+            
+            document.getElementById("confirmBookingBtn").addEventListener('click', () => {
+                var reason = document.getElementById("bookingReason").value;
+                
+                if(reason === ""){
+                    document.getElementById("reasonError").classList.remove('d-none');
+                    return
+                }
+                
+                fetch(`/api/booking/confirm`,{
+                    method: "POST",
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        date: selectedDate,
+                        time: selectedTime,
+                        reason: reason,
+                    })
+                }).then(res => {
+                    if(res.ok){
+                        window.location.reload();
+                    }
+                })
+                
+            })
+            
+            
+            
         }
 
         function confirmBooking(dateStr, time, display) {

@@ -33,6 +33,7 @@ builder.Services.AddControllersWithViews(options =>
 
 builder.Services.AddScoped<ISystemLogService,  SystemLogService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<AvailabilityService, AvailabilityService>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {

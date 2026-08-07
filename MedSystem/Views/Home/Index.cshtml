@@ -1,4 +1,5 @@
-﻿@model MedSystem.Models.ApplicationUser
+﻿@using MedSystem.Enums
+@model MedSystem.Models.ApplicationUser
 @{
     ViewData["Title"] = "Почетна страница";
 }
@@ -82,21 +83,79 @@
             </div>
         </div>
     </div>
+    
+    <div class="row g-4 mb-4">
+        
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-dark">Мои термини</h5>
+                    <a href="#" class="small text-primary text-decoration-none">Види ги сите</a>
+                </div>
+                <div class="card-body pt-0">
+                    @{
+                        var appointments = Model.Patient?.Appointments?
+                            .OrderBy(a => a.AppointmentDate)
+                            .Take(4)
+                            .ToList() ?? new List<Appointment>();
+                    }
 
-    <div class="row g-4">
-        <div class="col-lg-8">
-            
-            
-                
-            <partial name="Partials/_PrescriptionsTable" model="Model.Patient?.Prescriptions"/>
+                    @if (!appointments.Any())
+                    {
+                        <p class="text-muted small mb-0 py-2">Немате закажани прегледи.</p>
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-column gap-2">
+                            @foreach (var appointment in appointments)
+                            {
+                                var (badgeClass, statusText) = appointment.Status switch
+                                {
+                                    Status.Pending => ("bg-warning-subtle text-warning", "Чекање потврда"),
+                                    Status.Confirmed => ("bg-success-subtle text-success", "Потврден"),
+                                    Status.Cancelled => ("bg-danger-subtle text-danger", "Откажан"),
+                                    Status.Completed => ("bg-secondary-subtle text-secondary", "Завршен"),
+                                    _ => ("bg-secondary-subtle text-secondary", "Непознато")
+                                };
 
-            <partial name="Partials/_ReferralsTable" model="Model.Patient?.Referrals"/>
-
+                                <div class="d-flex align-items-center justify-content-between p-2 rounded-3 border">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="bg-primary-subtle text-primary rounded-3 p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                            <i class="bi bi-calendar-event"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold small">Д-р @appointment.Doctor?.ApplicationUser?.FirstName @appointment.Doctor?.ApplicationUser?.LastName</div>
+                                            <div class="text-muted" style="font-size: 0.78rem;">
+                                                @appointment.AppointmentDate.ToString("dd.MM.yyyy") во @appointment.AppointmentDate.ToString("HH:mm")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="badge rounded-pill @badgeClass px-2 py-1" style="font-size: 0.72rem;">
+                                        @statusText
+                                    </span>
+                                    
+                                    @if (appointment.Status == Status.Pending || appointment.Status == Status.Confirmed)
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-link text-danger p-0  open-delete-modal"
+                                                data-appointment-id="@appointment.Id"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteModal"
+                                                id="cancelAppointmentModal">
+                                                
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
 
-        <div class="col-lg-4">
-            
-            <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
                 <div class="card-header bg-white py-3 border-0">
                     <h5 class="mb-0 fw-bold text-dark">Брзи акции</h5>
                 </div>
@@ -114,39 +173,113 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="card border-0 shadow-sm rounded-3">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
                 <div class="card-body p-4 text-center">
                     <div class="mb-3 position-relative d-inline-block">
                         <div class="bg-primary-subtle text-primary rounded-circle p-4 mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
                             <i class="bi bi-person-heart fs-1"></i>
                         </div>
                     </div>
-                    <h5 class="fw-bold mb-1">д-р @Model.Patient!.PrimaryDoctor?.ApplicationUser.FirstName @Model.Patient!.PrimaryDoctor?.ApplicationUser.FirstName</h5>
+                    <h5 class="fw-bold mb-1">д-р @Model.Patient!.PrimaryDoctor?.ApplicationUser?.FirstName @Model.Patient!.PrimaryDoctor?.ApplicationUser?.LastName</h5>
                     <p class="text-primary small mb-3">Ваш Матичен Лекар</p>
-                    
+
                     <hr class="text-muted opacity-25">
-                    
+
                     <div class="text-start mb-3">
                         <div class="d-flex align-items-center mb-2 small text-muted">
-                            <i class="bi bi-telephone me-2 text-secondary"></i> @Model.Patient!.PrimaryDoctor?.ApplicationUser.PhoneNumber
+                            <i class="bi bi-telephone me-2 text-secondary"></i> @Model.Patient!.PrimaryDoctor?.ApplicationUser?.PhoneNumber
                         </div>
                         <div class="d-flex align-items-center small text-muted">
-                            <i class="bi bi-envelope me-2 text-secondary"></i> @Model.Patient!.PrimaryDoctor?.ApplicationUser.Email
+                            <i class="bi bi-envelope me-2 text-secondary"></i> @Model.Patient!.PrimaryDoctor?.ApplicationUser?.Email
                         </div>
                     </div>
-                    
+
                     <a href="#" class="btn btn-light w-100 rounded-3 border">Контактирај ординација</a>
                 </div>
             </div>
-
         </div>
     </div>
+
+    <div class="row g-4">
+        <div class="col-12">
+            <partial name="Partials/_PrescriptionsTable" model="Model.Patient?.Prescriptions"/>
+            <partial name="Partials/_ReferralsTable" model="Model.Patient?.Referrals"/>
+        </div>
+    </div>
+    
+        
 </div>
 
 
 <partial name="Partials/_BookAppointment" model="@Model"/>
+<partial name="Partials/CancelAppointmentModal"/>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    
+    <script>
+        (function () {
+            let appointmentIdToCancel = null;
+           
+            document.querySelectorAll('.open-delete-modal').forEach(btn => {
+                btn.addEventListener('click', async function () {
+                    appointmentIdToCancel = this.dataset.appointmentId;
+                    
+                    console.log(appointmentIdToCancel)
+                    try {
+                        const res = await fetch(`/api/booking/get-appointment?appointmentId=${appointmentIdToCancel}`)
+                        
+                        if(res.ok){
+                            const data = await res.json();
+                            
+                            const date = new Date(data.date).toLocaleDateString('mk-MK', 
+                                {
+                                    day:'numeric', 
+                                    month:'long',
+                                    year:'numeric'
+                                } 
+                            );
+                            
+                            
+                            
+                            document.getElementById("cancelDoctorName").innerHTML = data.doctorName;
+                            document.getElementById('cancelDateTime').innerHTML = date
+                        }
+                        
+                    } catch (error) {}
+                    const row = this.closest('.appointment-row');
+                    const doctorName = row.querySelector('.fw-semibold').textContent;
+                    const dateTime = row.querySelector('.text-muted').textContent;
+
+                    document.getElementById('cancelDoctorName').textContent = doctorName;
+                    document.getElementById('cancelDateTime').textContent = dateTime;
+
+                  
+                });
+            });
+
+            document.getElementById('confirmCancelBtn').addEventListener('click', function () {
+                if (!appointmentIdToCancel) return;
+
+                this.disabled = true;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Откажување...';
+
+                fetch(`/api/booking/cancel?id=${appointmentIdToCancel}`).then(res => {
+                    if (res.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Настана грешка при откажување, обидете се повторно.');
+                        this.disabled = false;
+                        this.innerHTML = '<i class="bi bi-x-circle me-1"></i> Откажи термин';
+                       
+                    }
+                });
+            });
+        })();
+        
+    </script>
+    
 }

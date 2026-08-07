@@ -9,7 +9,7 @@ public class Appointment
     public int Id { get; set; }
     
     [Required]
-    public int PatiendId { get; set; }
+    public int PatientId { get; set; }
     public Patient Patient { get; set; }
     
     [Required]
