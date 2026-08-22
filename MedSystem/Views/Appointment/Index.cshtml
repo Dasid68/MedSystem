@@ -1,0 +1,194 @@
+﻿@using MedSystem.Enums
+@model List<Appointment>
+
+@{
+    ViewData["Title"] = "Мои Прегледи";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Мои Прегледи</h2>
+            <p class="text-muted small mb-0">Преглед на сите ваши закажани и поминати прегледи</p>
+        </div>
+        
+        <a href="#" data-bs-toggle="modal" data-bs-target="#bookAppointmentModal" data-userId="@ViewBag.UserId" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> Закажи нов преглед
+        </a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="py-3 px-4">Доктор</th>
+                            <th scope="col" class="py-3">Специјалност</th>
+                            <th scope="col" class="py-3">Датум и Час</th>
+                            <th scope="col" class="py-3">Статус</th>
+                            <th scope="col" class="py-3 text-end px-4">Акција</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var app in Model)
+                        {
+                            var isUpcoming = app.AppointmentDate >= DateTime.Now && app.Status == Status.Pending;
+                            
+                            <tr id="appointment-row-@app.Id">
+                                <td class="px-4">
+                                    <div class="fw-bold text-dark">
+                                        Д-р @app.Doctor?.ApplicationUser?.FirstName @app.Doctor?.ApplicationUser?.LastName
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-muted small">@app.Doctor?.Specialization.Name</span>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">@app.AppointmentDate.ToString("dd.MM.yyyy")</div>
+                                    <div class="text-muted small">@app.AppointmentDate.ToString("HH:mm") часот</div>
+                                </td>
+                                <td>
+                                    @if (app.Status == Status.Cancelled)
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-2">
+                                            Откажано
+                                        </span>
+                                    }
+                                    else if (app.AppointmentDate < DateTime.Now)
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-2">
+                                            Завршено
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
+                                            Закажано
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end px-4">
+                                    @if (isUpcoming)
+                                    {
+                                        @* <button type="button"  *@
+                                        @*         class="btn btn-outline-danger btn-sm rounded-2 open-cancel-modal"  *@
+                                        @*         data-appointment-id="@app.Id" *@
+                                        @*         data-doctor-name="Д-р @app.Doctor?.ApplicationUser?.FirstName @app.Doctor?.ApplicationUser?.LastName" *@
+                                        @*         data-appointment-date="@app.AppointmentDate.ToString("dd.MM.yyyy HH:mm")"> *@
+                                        @*     <i class="bi bi-x-circle me-1"></i> Откажи *@
+                                        @* </button> *@
+                                        
+                                        <button type="button"
+                                                class="btn btn-outline-danger btn-sm rounded-2  open-delete-modal"
+                                                data-appointment-id="@app.Id"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteModal"
+                                                id="cancelAppointmentModal">
+                                                
+                                            <i class="bi bi-x-circle me-1"></i> Откажи
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm border-0 text-center p-5 rounded-3">
+            <div class="my-3">
+                <i class="bi bi-calendar-x fs-1 text-muted opacity-50"></i>
+                <h5 class="fw-bold mt-3">Немате закажано прегледи</h5>
+                <p class="text-muted small">Сите ваши идни и поминати прегледи ќе се појават тука.</p>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#bookAppointmentModal" data-userId="@ViewBag.UserId" class="btn btn-primary shadow-sm">
+                    Закажи го твојот прв преглед
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+
+
+
+<partial name="Partials/CancelAppointmentModal"/>
+<partial name="Partials/_BookAppointment" model="@ViewBag.User"/>
+
+
+
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    
+    <script>
+        (function () {
+            let appointmentIdToCancel = null;
+           
+            document.querySelectorAll('.open-delete-modal').forEach(btn => {
+                btn.addEventListener('click', async function () {
+                    appointmentIdToCancel = this.dataset.appointmentId;
+                    
+                    console.log(appointmentIdToCancel)
+                    try {
+                        const res = await fetch(`/api/booking/get-appointment?appointmentId=${appointmentIdToCancel}`)
+                        
+                        if(res.ok){
+                            const data = await res.json();
+                            
+                            const date = new Date(data.date).toLocaleDateString('mk-MK', 
+                                {
+                                    day:'numeric', 
+                                    month:'long',
+                                    year:'numeric'
+                                } 
+                            );
+                            
+                            
+                            
+                            document.getElementById("cancelDoctorName").innerHTML = data.doctorName;
+                            document.getElementById('cancelDateTime').innerHTML = date
+                        }
+                        
+                    } catch (error) {}
+                    const row = this.closest('.appointment-row');
+                    const doctorName = row.querySelector('.fw-semibold').textContent;
+                    const dateTime = row.querySelector('.text-muted').textContent;
+
+                    document.getElementById('cancelDoctorName').textContent = doctorName;
+                    document.getElementById('cancelDateTime').textContent = dateTime;
+
+                  
+                });
+            });
+
+            document.getElementById('confirmCancelBtn').addEventListener('click', function () {
+                if (!appointmentIdToCancel) return;
+
+                this.disabled = true;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Откажување...';
+
+                fetch(`/api/booking/cancel?id=${appointmentIdToCancel}`).then(res => {
+                    if (res.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Настана грешка при откажување, обидете се повторно.');
+                        this.disabled = false;
+                        this.innerHTML = '<i class="bi bi-x-circle me-1"></i> Откажи термин';
+                       
+                    }
+                });
+            });
+        })();
+        
+    </script>
+    
+}
