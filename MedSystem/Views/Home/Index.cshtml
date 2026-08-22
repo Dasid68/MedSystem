@@ -18,28 +18,47 @@
         </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-start border-4 border-primary shadow-sm bg-gradient-light">
-                <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap g-3">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-primary text-white p-3 rounded-3 me-3">
-                            <i class="bi bi-calendar-check fs-3"></i>
-                        </div>
-                        <div>
-                            <h5 class="mb-1 fw-bold text-primary">Вашиот следен преглед е наскоро!</h5>
-                            <p class="mb-0 text-dark"><strong>Д-р Петар Петровски</strong> (Кардиологија) — <span class="text-muted">30.06.2026 во 10:30 часот</span></p>
-                        </div>
-                    </div>
-                    <div>
-                        <a href="#" class="btn btn-primary btn-sm px-3 rounded-pill">Види детали</a>
-                        <a href="#" class="btn btn-outline-danger btn-sm px-3 rounded-pill ms-2">Откажи</a>
-                    </div>
+    @* <div class="row mb-4"> *@
+    @*     <div class="col-12"> *@
+    @*         <div class="card border-start border-4 border-primary shadow-sm bg-gradient-light"> *@
+    @*             <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap g-3"> *@
+    @*                 <div class="d-flex align-items-center"> *@
+    @*                     <div class="bg-primary text-white p-3 rounded-3 me-3"> *@
+    @*                         <i class="bi bi-calendar-check fs-3"></i> *@
+    @*                     </div> *@
+    @*                     <div> *@
+    @*                         <h5 class="mb-1 fw-bold text-primary">Вашиот следен преглед е наскоро!</h5> *@
+    @*                         <p class="mb-0 text-dark"><strong>Д-р Петар Петровски</strong> (Кардиологија) — <span class="text-muted">30.06.2026 во 10:30 часот</span></p> *@
+    @*                     </div> *@
+    @*                 </div> *@
+    @*                 <div> *@
+    @*                     <a href="#" class="btn btn-primary btn-sm px-3 rounded-pill">Види детали</a> *@
+    @*                     <a href="#" class="btn btn-outline-danger btn-sm px-3 rounded-pill ms-2">Откажи</a> *@
+    @*                 </div> *@
+    @*             </div> *@
+    @*         </div> *@
+    @*     </div> *@
+    @* </div> *@
+
+    @if (ViewBag.UpcomingAppointment != null)
+    {
+        var appointment = (Appointment)ViewBag.UpcomingAppointment;
+    
+        <div class="alert alert-warning alert-dismissible fade show shadow-sm border-start border-warning border-4 mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-calendar-event fs-3 me-3 text-warning"></i>
+                <div>
+                    <h6 class="alert-heading fw-bold mb-1">Закажан преглед наскоро!</h6>
+                    <p class="mb-0 small">
+                        Имате закажано преглед кај <strong>д-р @appointment.Doctor.ApplicationUser.FirstName @appointment.Doctor.ApplicationUser.LastName</strong> 
+                        на <strong>@appointment.AppointmentDate.ToString("dd.MM.yyyy")</strong> во <strong>@appointment.AppointmentDate.ToString("HH:mm")</strong> часот.
+                    </p>
                 </div>
             </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    </div>
-
+    }
+    
     <div class="row g-3 mb-4">
         <div class="col-12 col-md-4 ">
             <div class="card border-0 shadow-sm h-100 rounded-3">
@@ -197,7 +216,6 @@
                         </div>
                     </div>
 
-                    <a href="#" class="btn btn-light w-100 rounded-3 border">Контактирај ординација</a>
                 </div>
             </div>
         </div>

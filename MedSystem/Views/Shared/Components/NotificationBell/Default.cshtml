@@ -3,31 +3,127 @@
     var unreadCount = Model.Count(n => !n.IsRead);
 }
 
-<div class="dropdown position-relative">
-    <a href="#" class="position-relative text-white" data-bs-toggle="dropdown">
+<div class="dropdown position-relative" id="notificationDropdownContainer">
+    <a href="#" class="text-white text-decoration-none p-2" data-bs-toggle="dropdown" id="notificationBell">
         <i class="bi bi-bell fs-5"></i>
         @if (unreadCount > 0)
         {
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+            <span id="unreadBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
                 @unreadCount
             </span>
         }
     </a>
     
-        @if (Model.Any())
-        {
-            <ul class="dropdown-menu dropdown-menu-start" style="width: 250px;">
-        
+    <ul class="dropdown-menu dropdown-menu-start shadow-lg border-0 mt-2 p-0" style="width: 320px; max-width: 90vw; right: auto; left: 0;">
+        <li class="dropdown-header d-flex justify-content-between align-items-center fw-bold py-2 px-3 border-bottom bg-light">
+            <span>Известувања</span>
+            @if (unreadCount > 0)
+            {
+                <span id="unreadHeaderBadge" class="badge bg-primary rounded-pill">@unreadCount нови</span>
+            }
+        </li>
+
+        <div id="notificationsList" style="max-height: 350px; overflow-y: auto;">
+            @if (Model.Any())
+            {
                 @foreach (var n in Model)
                 {
-                    <li>
-                        <a class="dropdown-item small text-wrap @(n.IsRead ? "" : "fw-bold")" href="@(n.Link ?? "#")">
-                            @n.Message
-                            <div class="small text-muted">@n.CreatedAt.ToString("dd.MM HH:mm")</div>
-                        </a>
+                    <li id="notification-item-@n.Id" class="notification-item-wrapper border-bottom">
+                        <div class="d-flex align-items-center justify-content-between px-3 py-2 @(n.IsRead ? "bg-white" : "bg-light")">
+                            
+                            <a class="text-decoration-none text-wrap me-2 flex-grow-1 @(n.IsRead ? "text-muted" : "fw-bold text-dark")" href="@(n.Link ?? "#")" style="white-space: normal;">
+                                <div style="font-size: 0.85rem; line-height: 1.3;">
+                                    @n.Message
+                                </div>
+                                <div class="text-muted mt-1" style="font-size: 0.75rem;">
+                                    @n.CreatedAt.ToString("dd.MM HH:mm")
+                                </div>
+                            </a>
+
+                            <button type="button" 
+                                    class="btn-close btn-sm ms-2 delete-notification-btn" 
+                                    data-id="@n.Id" 
+                                    aria-label="Бриши" 
+                                    style="font-size: 0.65rem;" 
+                                    title="Избриши">
+                            </button>
+                        </div>
                     </li>
                 }
-            </ul>
-        }
-  
+            }
+            else
+            {
+                <li id="emptyNotifications" class="p-3 text-center text-muted small">
+                    <i class="bi bi-bell-slash fs-4 d-block mb-1 opacity-50"></i>
+                    Немате известувања
+                </li>
+            }
+        </div>
+    </ul>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var dropdownEl = document.getElementById('notificationBell');
+    var hasUnread = @(unreadCount > 0 ? "true" : "false");
+
+    if (dropdownEl) {
+       
+        dropdownEl.addEventListener('hidden.bs.dropdown', function () {
+            if (hasUnread) {
+                fetch('/Notification/MarkAllAsRead', { method: 'POST' })
+                    .then(res => {
+                        if (res.ok) {
+                            var badge = document.getElementById('unreadBadge');
+                            var headerBadge = document.getElementById('unreadHeaderBadge');
+                            if (badge) badge.style.display = 'none';
+                            if (headerBadge) headerBadge.style.display = 'none';
+
+                            document.querySelectorAll('.notification-item-wrapper .d-flex').forEach(el => {
+                                el.classList.remove('bg-light');
+                                el.classList.add('bg-white');
+                            });
+                            document.querySelectorAll('.notification-item-wrapper a').forEach(el => {
+                                el.classList.remove('fw-bold', 'text-dark');
+                                el.classList.add('text-muted');
+                            });
+
+                            hasUnread = false;
+                        }
+                    });
+            }
+        });
+    }
+
+    
+    document.querySelectorAll('.delete-notification-btn').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var notificationId = this.dataset.id;
+            var itemElement = document.getElementById(`notification-item-${notificationId}`);
+
+            fetch(`/Notification/Delete?id=${notificationId}`, { method: 'POST' })
+                .then(res => {
+                    if (res.ok) {
+                        itemElement.style.transition = "all 0.3s ease";
+                        itemElement.style.opacity = "0";
+                        setTimeout(() => {
+                            itemElement.remove();
+
+                            var remaining = document.querySelectorAll('.notification-item-wrapper');
+                            if (remaining.length === 0) {
+                                document.getElementById('notificationsList').innerHTML = `
+                                    <li class="p-3 text-center text-muted small">
+                                        <i class="bi bi-bell-slash fs-4 d-block mb-1 opacity-50"></i>
+                                        Немате известувања
+                                    </li>`;
+                            }
+                        }, 300);
+                    }
+                });
+        });
+    });
+});
+</script>
