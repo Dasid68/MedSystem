@@ -1,8 +1,781 @@
-﻿
+﻿@model MedSystem.Areas.Doctor.Models.DoctorDashboardViewModel
 
 @{
-    ViewBag.Title = "title";
-    Layout = "_Layout";
+    ViewData["Title"] = "Докторски Dashboard";
+    Layout = "_LayoutDoctor";
 }
 
-<h2>Doctor page</h2>
+<div class="container-fluid py-4 px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Добредојдовте, д-р @Model.DoctorName</h3>
+            <p class="text-muted small mb-0">Преглед на вашите закажани термини и барања од пациенти</p>
+        </div>
+        <div class="text-end">
+            <span class="badge bg-light text-dark border p-2 fw-normal">
+                <i class="bi bi-calendar3 me-1 text-primary"></i> @DateTime.Now.ToString("dd MMMM yyyy, dddd", new System.Globalization.CultureInfo("mk-MK"))
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-warning-subtle text-warning-emphasis">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-3 p-3 bg-warning text-white me-3">
+                        <i class="bi bi-hourglass-split fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold">Барања за одобрување</div>
+                        <h3 class="fw-bold mb-0">@Model.PendingAppointments.Count</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-primary-subtle text-primary-emphasis">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-3 p-3 bg-primary text-white me-3">
+                        <i class="bi bi-calendar-check fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold">Прегледи денес</div>
+                        <h3 class="fw-bold mb-0">@Model.TodayAppointmentsCount</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-success-subtle text-success-emphasis">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-3 p-3 bg-success text-white me-3">
+                        <i class="bi bi-calendar-week fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold">Вкупно претстојни</div>
+                        <h3 class="fw-bold mb-0">@Model.UpcomingAppointments.Count</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-info-subtle text-info-emphasis">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-3 p-3 bg-info text-white me-3">
+                        <i class="bi bi-people fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold">Вкупно пациенти</div>
+                        <h3 class="fw-bold mb-0">@Model.TotalPatientsCount</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            
+            <div class="card shadow-sm border-0 rounded-3 mb-4">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0 text-warning-emphasis">
+                        <i class="bi bi-exclamation-circle me-2 text-warning"></i>Нови барања за преглед
+                    </h5>
+                    <span class="badge bg-warning text-dark rounded-pill">@Model.PendingAppointments.Count нови</span>
+                </div>
+                <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+            <tr>
+                <th scope="col" class="ps-3">Пациент</th>
+                <th scope="col">Датум и Час</th>
+                <th scope="col">Причина</th>
+                <th scope="col" class="text-end pe-3">Акција</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model?.PendingAppointments != null && Model.PendingAppointments.Any())
+            {
+                @foreach (var app in Model.PendingAppointments)
+                {
+                    <tr id="pending-row-@app.Id">
+                        <td class="ps-3">
+                            <div class="fw-bold text-dark">@app.Patient.ApplicationUser.FirstName @app.Patient.ApplicationUser.LastName</div>
+                            <div class="text-muted small">Тел: @(app.Patient.ApplicationUser.PhoneNumber ?? "/")</div>
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-primary">@app.AppointmentDate.ToString("dd.MM.yyyy")</div>
+                            <div class="text-muted small">@app.AppointmentDate.ToString("HH:mm") часот</div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1">
+                                <span class="d-inline-block text-truncate small" style="max-width: 170px;" title="@app.Reason">
+                                    @(string.IsNullOrEmpty(app.Reason) ? "Нема наведено" : app.Reason)
+                                </span>
+                                <button type="button" 
+                                        class="btn btn-link btn-sm p-0 ms-1 text-decoration-none view-details-btn"
+                                        data-id="@app.Id"
+                                        data-patient="@app.Patient.ApplicationUser.FirstName @app.Patient.ApplicationUser.LastName"
+                                        data-phone="@(app.Patient.ApplicationUser.PhoneNumber)"
+                                        data-date="@app.AppointmentDate.ToString("dd.MM.yyyy HH:mm") часот"
+                                        data-reason="@(string.IsNullOrEmpty(app.Reason) ? "Нема наведено причина." : app.Reason)">
+                                    <i class="bi bi-eye text-primary"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="text-end pe-3">
+                            <button type="button" 
+                                    class="btn btn-sm btn-success me-1 approve-btn" 
+                                    data-id="@app.Id">
+                                <i class="bi bi-check-lg"></i> Одобри
+                            </button>
+                            <button type="button" 
+                                    class="btn btn-sm btn-outline-danger reject-btn" 
+                                    data-id="@app.Id">
+                                <i class="bi bi-x-lg"></i> Одбиј
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4 small">
+                        <i class="bi bi-check2-circle me-1"></i> Немате нови барања кои чекаат одобрување.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+            </div>
+
+       
+<div class="card shadow-sm border-0 rounded-3">
+    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0 text-primary">
+            <i class="bi bi-calendar-check me-2 text-primary"></i>Одобрени претстојни прегледи
+        </h5>
+        <a asp-controller="Appointment" asp-action="AllAppointments" class="btn btn-sm btn-link text-decoration-none">Види ги сите</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col" class="ps-3">Пациент</th>
+                    <th scope="col">Датум и Час</th>
+                    <th scope="col">Причина</th>
+                    <th scope="col" class="text-end pe-3">Акции</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model?.UpcomingAppointments != null && Model.UpcomingAppointments.Any())
+                {
+                    @foreach (var app in Model.UpcomingAppointments)
+                    {
+                        <tr id="upcoming-row-@app.Id">
+                            <td class="ps-3">
+                                <div class="fw-bold text-dark">@app.Patient.ApplicationUser.FirstName @app.Patient.ApplicationUser.LastName</div>
+                                <div class="text-muted small">Тел: @(app.Patient.ApplicationUser.PhoneNumber ?? "/")</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">@app.AppointmentDate.ToString("dd.MM.yyyy")</div>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                    @app.AppointmentDate.ToString("HH:mm") ч
+                                </span>
+                            </td>
+                            <td>
+                                <span class="text-muted small d-inline-block text-truncate" style="max-width: 150px;" title="@app.Reason">
+                                    @(string.IsNullOrEmpty(app.Reason) ? "Редовен преглед" : app.Reason)
+                                </span>
+                            </td>
+                            <td class="text-end pe-3">
+                                
+                                <a  asp-controller="Appointment" asp-action="Index" asp-route-id="@app.Id" class="btn btn-sm btn-success me-1" title="Започни преглед">
+                                    <i class="bi bi-stethoscope me-1"></i> Започни
+                                </a>
+                               
+                                <button type="button" 
+                                        class="btn btn-sm btn-outline-danger cancel-upcoming-btn" 
+                                        data-id="@app.Id" 
+                                        data-patient="@app.Patient.ApplicationUser.FirstName @app.Patient.ApplicationUser.LastName"
+                                        title="Откажи термин">
+                                    <i class="bi bi-x-circle"></i> Откажи
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4 small">
+                            Немате одобрени претстојни прегледи.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+        </div>
+
+        <div class="col-lg-4">
+            
+            <div class="card shadow-sm border-0 rounded-3 mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">
+                        <i class="bi bi-clock-history text-primary me-2"></i>Денешни термини
+                    </h6>
+                    
+                    @if (Model.TodayAppointments != null && Model.TodayAppointments.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var todayApp in Model.TodayAppointments)
+                            {
+                                <div class="list-group-item px-0 py-2 border-0 d-flex align-items-center">
+                                    <div class="badge bg-light text-primary border p-2 me-3 font-monospace">
+                                        @todayApp.AppointmentDate.ToString("HH:mm")
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold small">@todayApp.Patient.ApplicationUser.FirstName  @todayApp.Patient.ApplicationUser.LastName</div>
+                                        <div class="text-muted extra-small">@todayApp.Reason</div>
+                                    </div>
+                                    <a asp-controller="Appointment" asp-action="Index" asp-route-id="@todayApp.Id" class="btn btn-sm btn-success rounded-circle" title="Започни преглед">
+                                        <i class="bi bi-play-fill"></i>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-3 small">
+                            Немате закажано термини за денес.
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3 text-dark ">
+                      Брзи акции
+                    </h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#quickPrescriptionModal">
+                            <i class="bi bi-capsule me-1"></i> Издади рецепт
+                        </button>
+
+                        <button type="button" class="btn btn-info text-white shadow-sm" data-bs-toggle="modal" data-bs-target="#quickReferralModal">
+                            <i class="bi bi-file-earmark-medical me-1"></i> Издади упат
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+@* MODAL *@
+<div class="modal fade" id="appointmentDetailModal" tabindex="-1" aria-labelledby="appointmentDetailModalTitle">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold" id="appointmentDetailModalTitle">
+                    <i class="bi bi-info-circle text-primary me-2"></i>Детали за барањето
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-3">
+                <div class="card border-0 bg-light mb-3">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small">Пациент:</span>
+                            <span class="fw-bold text-dark" id="modalPatientName">—</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small">Телефон:</span>
+                            <span class="fw-semibold text-secondary" id="modalPatientPhone">—</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Датум и час:</span>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle" id="modalAppointmentDate">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label fw-semibold small text-muted">Целосна причина за преглед:</label>
+                    <div class="p-3 bg-white border rounded-3 text-break shadow-sm" id="modalAppointmentReason" style="min-height: 90px; max-height: 200px; overflow-y: auto;">
+                        —
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 pt-0 d-flex justify-content-between">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Затвори</button>
+                <div>
+                    <button type="button" class="btn btn-sm btn-outline-danger me-1" id="modalRejectBtn">
+                        <i class="bi bi-x-lg"></i> Одбиј
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success" id="modalApproveBtn">
+                        <i class="bi bi-check-lg"></i> Одобри
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* MODAL OTKAZUVANJE TERMIN *@
+<div class="modal fade" id="cancelConfirmModal" tabindex="-1" aria-labelledby="cancelConfirmModalTitle">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-body text-center p-4">
+                <i class="bi bi-exclamation-circle text-warning fs-1 mb-2 d-block"></i>
+                <h6 class="fw-bold mb-2">Откажување на термин</h6>
+                <p class="text-muted small mb-3">
+                    Дали сте сигурни дека сакате да го откажете терминот за пациент <strong id="cancelModalPatientName"></strong>?
+                </p>
+                <div class="d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-sm btn-light border px-3" data-bs-dismiss="modal">Не</button>
+                    <button type="button" class="btn btn-sm btn-danger px-3" id="confirmCancelBtn">Да, откажи</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* TOAST *@
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+    <div id="statusToast" class="toast align-items-center text-white bg-success border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body d-flex align-items-center gap-2" id="toastMessage">
+                <i class="bi bi-check-circle-fill fs-5"></i>
+                <span>Терминот е успешно процесиран!</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+@* MODAL IZDAVANJE RECEPT *@
+<div class="modal fade" id="quickPrescriptionModal" tabindex="-1" aria-labelledby="quickPrescriptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="quickPrescriptionModalLabel">
+                    <i class="bi bi-capsule me-2"></i>Издавање рецепт
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="CreatePrescription" asp-controller="Home" asp-area="Doctor" method="post">
+              
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label for="prescriptionPatientId" class="form-label fw-semibold">Пациент</label>
+                        <select class="form-select" id="prescriptionPatientId" name="PatientId" required>
+                            <option value="" selected disabled>-- Избери пациент --</option>
+                            @if (ViewBag.Patients != null)
+                            {
+                                foreach (var patient in (IEnumerable<SelectListItem>)ViewBag.Patients)
+                                {
+                                    <option value="@patient.Value">@patient.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="medicationName" class="form-label fw-semibold">Име на лек</label>
+                        <input type="text" class="form-control" id="medicationName" name="Medication"   />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="instructions" class="form-label fw-semibold">Упатство за користење / Дозирање</label>
+                        <textarea class="form-control" id="instructions" name="Instructions" rows="3" ></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Откажи</button>
+                    <button type="submit" class="btn btn-success btn-sm px-3">
+                        <i class="bi bi-check-lg me-1"></i> Издади рецепт
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* MODAL IZDADI UPAT *@
+<div class="modal fade" id="quickReferralModal" tabindex="-1" aria-labelledby="quickReferralModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title fw-bold" id="quickReferralModalLabel">
+                    <i class="bi bi-file-earmark-medical me-2"></i>Издавање упат
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/doctor/create-referral" method="post">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label for="referralPatientId" class="form-label fw-semibold">Пациент</label>
+                        <select class="form-select" id="referralPatientId" name="PatientId" required>
+                            <option value="" selected disabled>-- Избери пациент --</option>
+                            @if (ViewBag.Patients != null)
+                            {
+                                foreach (var patient in (IEnumerable<SelectListItem>)ViewBag.Patients)
+                                {
+                                    <option value="@patient.Value">@patient.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="specialtySelect" class="form-label fw-semibold">Специјалност / Оддел</label>
+                        <select class="form-select" id="specialtySelect" name="specializationId" asp-items="@ViewBag.Specializations"  required>
+                            <option value="" selected disabled>-- Избери оддел --</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="doctorSelectContainer" style="display: none;">
+                        <label for="doctorSelect" class="form-label fw-semibold">Специјалист / Доктор</label>
+                        <select class="form-select" id="doctorSelect" name="SpecialistId" required>
+                            <option value="" selected disabled>-- Избери доктор --</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="referralReason" class="form-label fw-semibold">Причина за упатување</label>
+                        <textarea class="form-control" id="referralReason" name="Reason" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Откажи</button>
+                    <button type="submit" class="btn btn-info text-white btn-sm px-3">
+                        <i class="bi bi-check-lg me-1"></i> Издади упат
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            
+           
+            const detailModalEl = document.getElementById('appointmentDetailModal');
+            let bsDetailModal = detailModalEl ? bootstrap.Modal.getInstance(detailModalEl) || new bootstrap.Modal(detailModalEl) : null;
+            
+            const toastEl = document.getElementById('statusToast');
+            const bsToast = toastEl ? new bootstrap.Toast(toastEl, { delay: 3000 }) : null;
+            
+            let currentAppointmentId = null;
+
+           
+            function showNotification(message, isSuccess = true) {
+                const toastMsgEl = document.getElementById('toastMessage');
+                
+                if (isSuccess) {
+                    toastEl.className = "toast align-items-center text-white bg-success border-0 shadow";
+                    toastMsgEl.innerHTML = `<i class="bi bi-check-circle-fill fs-5"></i> <span>${message}</span>`;
+                } else {
+                    toastEl.className = "toast align-items-center text-white bg-danger border-0 shadow";
+                    toastMsgEl.innerHTML = `<i class="bi bi-exclamation-triangle-fill fs-5"></i> <span>${message}</span>`;
+                }
+
+                if (bsToast) {
+                    bsToast.show();
+                }
+            }
+
+          
+            function removeRowFromTable(id) {
+                const row = document.getElementById(`pending-row-${id}`);
+                if (row) {
+                    row.style.transition = "all 0.4s ease";
+                    row.style.opacity = "0";
+                    row.style.transform = "translateX(20px)";
+                    setTimeout(() => {
+                        row.remove();
+                      
+                        const tbody = document.querySelector('tbody');
+                        if (tbody && tbody.children.length === 0) {
+                            window.location.reload(); 
+                        }
+                    }, 400);
+                }
+            }
+
+           
+            async function approveAppointment(id, btnElement) {
+                if (btnElement) btnElement.disabled = true;
+
+                try {
+                    const res = await fetch(`/api/booking/approve-appointment?id=${id}`, { method: 'POST' });
+                    if (res.ok) {
+                        if (bsDetailModal) bsDetailModal.hide();
+                        removeRowFromTable(id);
+                        showNotification('Терминот е успешно одобрен!');
+                    } else {
+                        showNotification('Настана грешка при одобрувањето.', false);
+                        if (btnElement) btnElement.disabled = false;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showNotification('Мрежна грешка. Обидете се повторно.', false);
+                    if (btnElement) btnElement.disabled = false;
+                }
+            }
+
+           
+            async function rejectAppointment(id, btnElement) {
+                
+                
+                if (btnElement) btnElement.disabled = true;
+
+                try {
+                    const res = await fetch(`/api/booking/reject-appointment?id=${id}`, { method: 'POST' });
+                    if (res.ok) {
+                        if (bsDetailModal) bsDetailModal.hide();
+                        removeRowFromTable(id);
+                        showNotification('Терминот е успешно одбиен.', true);
+                    } else {
+                        showNotification('Настана грешка при одбивањето.', false);
+                        if (btnElement) btnElement.disabled = false;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showNotification('Мрежна грешка. Обидете се повторно.', false);
+                    if (btnElement) btnElement.disabled = false;
+                }
+            }
+
+            document.querySelectorAll('.view-details-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    currentAppointmentId = this.dataset.id;
+                    document.getElementById('modalPatientName').textContent = this.dataset.patient;
+                    document.getElementById('modalPatientPhone').textContent = this.dataset.phone;
+                    document.getElementById('modalAppointmentDate').textContent = this.dataset.date;
+                    document.getElementById('modalAppointmentReason').textContent = this.dataset.reason;
+
+                    if (bsDetailModal) bsDetailModal.show();
+                });
+            });
+
+           
+            document.querySelectorAll('.approve-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    approveAppointment(this.dataset.id, this);
+                });
+            });
+
+            document.querySelectorAll('.reject-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    rejectAppointment(this.dataset.id, this);
+                });
+            });
+
+         
+            document.getElementById('modalApproveBtn')?.addEventListener('click', function () {
+                if (currentAppointmentId) approveAppointment(currentAppointmentId, this);
+            });
+
+            document.getElementById('modalRejectBtn')?.addEventListener('click', function () {
+                if (currentAppointmentId) rejectAppointment(currentAppointmentId, this);
+            });
+        });
+    </script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            
+            const detailModalEl = document.getElementById('appointmentDetailModal');
+            let bsDetailModal = null;
+            let currentAppointmentId = null;
+
+            if (detailModalEl) {
+                bsDetailModal = new bootstrap.Modal(detailModalEl);
+
+                detailModalEl.addEventListener('hide.bs.modal', function () {
+                    if (document.activeElement && detailModalEl.contains(document.activeElement)) {
+                        document.activeElement.blur();
+                    }
+                });
+            }
+
+            document.querySelectorAll('.view-details-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    currentAppointmentId = this.dataset.id;
+                    
+                    document.getElementById('modalPatientName').textContent = this.dataset.patient;
+                    document.getElementById('modalPatientPhone').textContent = this.dataset.phone;
+                    document.getElementById('modalAppointmentDate').textContent = this.dataset.date;
+                    document.getElementById('modalAppointmentReason').textContent = this.dataset.reason;
+
+                    if (bsDetailModal) {
+                        bsDetailModal.show();
+                    }
+                });
+            });
+
+            async function approveAppointment(id, btnElement) {
+                if (btnElement) btnElement.disabled = true;
+
+                try {
+                    const res = await fetch(`/api/doctor/approve-appointment?id=${id}`, { method: 'POST' });
+                    if (res.ok) {
+                        window.location.reload();
+                    } else {
+                        if (btnElement) btnElement.disabled = false;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    if (btnElement) btnElement.disabled = false;
+                }
+            }
+
+            async function rejectAppointment(id, btnElement) {
+             
+                
+                if (btnElement) btnElement.disabled = true;
+
+                try {
+                    const res = await fetch(`/api/doctor/reject-appointment?id=${id}`, { method: 'POST' });
+                    if (res.ok) {
+                        window.location.reload();
+                    } else {
+                        if (btnElement) btnElement.disabled = false;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    if (btnElement) btnElement.disabled = false;
+                }
+            }
+
+            document.querySelectorAll('.approve-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    approveAppointment(this.dataset.id, this);
+                });
+            });
+
+            document.querySelectorAll('.reject-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    rejectAppointment(this.dataset.id, this);
+                });
+            });
+
+            document.getElementById('modalApproveBtn').addEventListener('click', function () {
+                if (currentAppointmentId) {
+                    approveAppointment(currentAppointmentId, this);
+                }
+            });
+
+            document.getElementById('modalRejectBtn').addEventListener('click', function () {
+                if (currentAppointmentId) {
+                    rejectAppointment(currentAppointmentId, this);
+                }
+            });
+        });
+    </script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const cancelModalEl = document.getElementById('cancelConfirmModal');
+            let bsCancelModal = cancelModalEl ? new bootstrap.Modal(cancelModalEl) : null;
+            let appointmentToCancelId = null;
+
+            document.querySelectorAll('.cancel-upcoming-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    appointmentToCancelId = this.dataset.id;
+                    document.getElementById('cancelModalPatientName').textContent = this.dataset.patient;
+                    if (bsCancelModal) bsCancelModal.show();
+                });
+            });
+
+            document.getElementById('confirmCancelBtn')?.addEventListener('click', async function () {
+                if (!appointmentToCancelId) return;
+                this.disabled = true;
+
+                try {
+                    const res = await fetch(`/api/booking/reject-appointment?id=${appointmentToCancelId}`, { method: 'POST' });
+                    if (res.ok) {
+                        if (bsCancelModal) bsCancelModal.hide();
+
+                        const row = document.getElementById(`upcoming-row-${appointmentToCancelId}`);
+                        if (row) {
+                            row.style.transition = "all 0.4s ease";
+                            row.style.opacity = "0";
+                            row.style.transform = "translateX(20px)";
+                            setTimeout(() => row.remove(), 400);
+                        }
+
+                        showNotification('Терминот е успешно откажан.');
+                    } else {
+                        showNotification('Настана грешка при откажувањето.', false);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showNotification('Мрежна грешка. Обидете се повторно.', false);
+                } finally {
+                    this.disabled = false;
+                }
+            });
+        });
+        
+    </script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const specialtySelect = document.getElementById("specialtySelect");
+            const doctorSelectContainer = document.getElementById("doctorSelectContainer");
+            const doctorSelect = document.getElementById("doctorSelect");
+
+            specialtySelect.addEventListener("change", function () {
+                const selectedSpecialty = this.value;
+
+                if (!selectedSpecialty) {
+                    doctorSelectContainer.style.display = "none";
+                    doctorSelect.innerHTML = '<option value="" selected disabled>-- Избери доктор --</option>';
+                    return;
+                }
+
+                fetch(`/Doctor/getdoctorsbyspecialty?specialty=${encodeURIComponent(selectedSpecialty)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        doctorSelect.innerHTML = '<option value="" selected disabled>-- Избери доктор --</option>';
+
+                        if (data.length > 0) {
+                            data.forEach(doctor => {
+                                const option = document.createElement("option");
+                                option.value = doctor.id;
+                                option.textContent = doctor.name;
+                                doctorSelect.appendChild(option);
+                            });
+                            doctorSelectContainer.style.display = "block";
+                        } else {
+                            const option = document.createElement("option");
+                            option.value = "";
+                            option.textContent = "Нема достапни доктори во овој оддел";
+                            option.disabled = true;
+                            doctorSelect.appendChild(option);
+                            doctorSelectContainer.style.display = "block";
+                        }
+                    })
+                    .catch(error => console.error("Грешка при преземање доктори:", error));
+            });
+        });
+    </script>
+}
