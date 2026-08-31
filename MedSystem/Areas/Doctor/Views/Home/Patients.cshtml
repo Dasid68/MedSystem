@@ -1,0 +1,114 @@
+﻿@model List<MedSystem.Areas.Doctor.Models.DoctorPatientsViewModel>
+
+@{
+    ViewData["Title"] = "Мои Пациенти";
+    Layout = "_LayoutDoctor";
+}
+
+<div class="container-fluid py-4">
+   
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1 text-primary">
+                <i class="bi bi-people me-2"></i>Мои пациенти
+            </h3>
+            <p class="text-muted small mb-0">Листа на сите пациенти на кои им сте матичен лекар.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <span class="badge bg-primary-subtle text-primary fs-6 d-flex align-items-center px-3 border border-primary-subtle">
+                Вкупно: @(Model?.Count ?? 0) пациенти
+            </span>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm d-flex align-items-center">
+                <i class="bi bi-arrow-left me-1"></i> Назад
+            </a>
+        </div>
+    </div>
+
+  
+    @* <div class="card shadow-sm border-0 mb-4"> *@
+    @*     <div class="card-body"> *@
+    @*         <div class="row"> *@
+    @*             <div class="col-md-6 col-lg-4"> *@
+    @*                 <div class="input-group"> *@
+    @*                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span> *@
+    @*                     <input type="text" id="patientSearchInput" class="form-control border-start-0 shadow-none" placeholder="Пребарај по име, email или телефон..."> *@
+    @*                 </div> *@
+    @*             </div> *@
+    @*         </div> *@
+    @*     </div> *@
+    @* </div> *@
+
+  
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="patientsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="ps-3">Пациент</th>
+                            <th scope="col">Контакт</th>
+                            <th scope="col" class="text-center">Вкупно прегледи</th>
+                            <th scope="col">Последен преглед</th>
+                            @* <th scope="col" class="text-end pe-3">Акции</th> *@
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var patient in Model)
+                            {
+                                <tr>
+                                    <td class="ps-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center me-3 fw-bold" style="width: 40px; height: 40px;">
+                                                @(string.IsNullOrEmpty(patient.FullName) ? "П" : patient.FullName.Substring(0, 1))
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark patient-name">@patient.FullName</div>
+                                                <div class="text-muted extra-small">ID: #@patient.PatientId</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="small text-dark"><i class="bi bi-telephone me-1 text-muted"></i>@patient.Phone</div>
+                                        <div class="small text-muted"><i class="bi bi-envelope me-1 text-muted"></i>@patient.Email</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark border px-2 py-1">
+                                            @patient.TotalAppointmentsCount
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (patient.LastAppointmentDate.HasValue)
+                                        {
+                                            <div class="small fw-semibold text-dark">@patient.LastAppointmentDate.Value.ToString("dd.MM.yyyy")</div>
+                                            <div class="text-muted extra-small">@patient.LastAppointmentDate.Value.ToString("HH:mm") ч.</div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">Нема реализирано</span>
+                                        }
+                                    </td>
+                                    @* <td class="text-end pe-3"> *@
+                                    @*     <a href="/Doctor/Patients/Details/@patient.PatientId" class="btn btn-sm btn-outline-primary" title="Преглед на картон"> *@
+                                    @*         <i class="bi bi-folder2-open me-1"></i> Досие *@
+                                    @*     </a> *@
+                                    @* </td> *@
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    Немате запишано матични пациенти.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

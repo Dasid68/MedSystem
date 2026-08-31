@@ -1,4 +1,5 @@
 using MedSystem.Data;
+using MedSystem.Enums;
 using MedSystem.Models;
 using MedSystem.Services;
 using Microsoft.AspNetCore.Http;
@@ -117,6 +118,27 @@ namespace MedSystem.Api
 
             return Ok();
         }
+
+        [HttpPost("approve-appointment")]
+        public async Task<IActionResult> ApproveAppointment(int id)
+        {
+            var app = context.Appointments.Find(id);
+            app.Status = Status.Confirmed;
+            await context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPost("reject-appointment")]
+        public async Task<IActionResult> RejectAppointment(int id)
+        {
+            var app = context.Appointments.Find(id);
+            app.Status = Status.Cancelled;
+            await context.SaveChangesAsync();
+            return Ok();
+        }
+        
+       
+        
     }
     
     

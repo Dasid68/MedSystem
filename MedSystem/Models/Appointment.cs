@@ -27,4 +27,8 @@ public class Appointment
     public Status Status { get; set; } = Status.Pending;
     
     public string? Notes { get; set; }
+    
+    public string? Symptoms { get; set; }
+    public string? Diagnosis { get; set; }
+    public string? Prescriptions { get; set; }
 }

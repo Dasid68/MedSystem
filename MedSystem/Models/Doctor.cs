@@ -17,4 +17,6 @@ public class Doctor
     public ICollection<Referral> IssuedReferrals { get; set; } = new List<Referral>();
     public ICollection<Referral> ReceivedReferrals { get; set; } = new List<Referral>();
     public ICollection<Patient> PrimaryPatients { get; set; } = new List<Patient>(); 
+    
+    public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 }
