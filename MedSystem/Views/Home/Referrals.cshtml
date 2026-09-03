@@ -1,0 +1,71 @@
+﻿
+@model IEnumerable<Referral>
+
+@{
+    ViewData["Title"] = "Мои Прегледи";
+    Layout = "_Layout";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Мои упати</h2>
+            <p class="text-muted small mb-0">Преглед на сите ваши упати</p>
+        </div>
+        
+      
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="py-3">Оддел</th>
+                            <th scope="col" class="py-3">Од лекар</th>
+                            <th scope="col" class="py-3">До лекар</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var reff in Model)
+                        {
+    
+    
+                            <tr >
+                                <td>
+                                    @reff.ReferringSpecialization.Name
+                                </td>
+                                <td >
+                                    
+                                        Д-р @reff.ReferringDoctor?.ApplicationUser?.FirstName @reff.ReferringDoctor?.ApplicationUser?.LastName
+                                    
+                                </td>
+    
+                                <td>
+                                    Д-р @reff.ReferredDoctor?.ApplicationUser?.FirstName @reff.ReferredDoctor?.ApplicationUser?.LastName
+                                </td>
+    
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm border-0 text-center p-5 rounded-3">
+            <div class="my-3">
+                <i class="bi bi-calendar-x fs-1 text-muted opacity-50"></i>
+                <h5 class="fw-bold mt-3">Немате закажано прегледи</h5>
+                <p class="text-muted small">Сите ваши идни и поминати прегледи ќе се појават тука.</p>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#bookAppointmentModal" data-userId="@ViewBag.UserId" class="btn btn-primary shadow-sm">
+                    Закажи го твојот прв преглед
+                </a>
+            </div>
+        </div>
+    }
+</div>
+

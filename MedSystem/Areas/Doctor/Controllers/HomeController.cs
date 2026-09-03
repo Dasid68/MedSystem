@@ -91,7 +91,7 @@ public class HomeController
     
     
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    [Route("/doctor/createprescription")]
     public async Task<IActionResult> CreatePrescription(int patientId, string medication, string instructions)
     {
         var userId = userManager.GetUserId(User);
@@ -106,7 +106,7 @@ public class HomeController
             Medication = medication,
             Instructions = instructions,
             IssuedDate = DateTime.Now,
-            ExpirationDate = DateTime.Now.AddDays(30)
+            // ExpirationDate = DateTime.Now.AddDays(30)
         };
 
         context.Prescriptions.Add(prescription);
