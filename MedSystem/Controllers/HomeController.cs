@@ -48,6 +48,21 @@ public class HomeController(
             .Include(u => u.Patient)
                 .ThenInclude(p => p.PrimaryDoctor)
                 .ThenInclude(d => d.ApplicationUser)
+            .Include(u => u.Patient)
+                .ThenInclude(p => p.Referrals)
+                .ThenInclude(r => r.ReferringSpecialization)
+            .Include(u => u.Patient)
+                .ThenInclude(p => p.Referrals)
+                .ThenInclude(r => r.ReferringDoctor)
+                .ThenInclude(d => d.ApplicationUser)
+            .Include(u => u.Patient)
+                .ThenInclude(p => p.Referrals)
+                .ThenInclude(r => r.ReferredDoctor)
+                .ThenInclude(d => d.ApplicationUser)
+            .Include(u => u.Patient)
+            .ThenInclude(p => p.Prescriptions)
+            .ThenInclude(p => p.Doctor)
+            .ThenInclude(d => d.ApplicationUser)
             .FirstOrDefault(u => u.Email == userEmail);
         
         var userId = userManager.GetUserId(User);
@@ -66,6 +81,13 @@ public class HomeController(
 
         
         ViewBag.UpcomingAppointment = upcomingAppointment;
+        
+        var activeReceipts = context.Users.Include(u => u.Patient).ThenInclude(p => p.Prescriptions)
+            
+            .FirstOrDefault(u => u.Email == userEmail);
+
+        var t = activeReceipts.Patient.Prescriptions.Where(p => (p.ExpirationDate - p.IssuedDate).TotalDays < 7);
+        ViewBag.ActiveReceipts = t;
         
         return View(user);
     }
@@ -92,8 +114,35 @@ public class HomeController(
         }
         return BadRequest();
     }
+    [Route("/referrals")]
+    public async Task<IActionResult> Referrals()
+    {
+        var user = await userManager.GetUserAsync(User);
+        var patient = context.Patients.FirstOrDefault(p => p.ApplicationUserId == user.Id);
 
-   
+        var referrals = context.Referrals.Where(r => r.PatientId == patient.Id)
+            .Include(r => r.ReferringDoctor)
+            .ThenInclude(d => d.ApplicationUser)
+            .Include(r => r.ReferredDoctor)
+            .ThenInclude(d => d.ApplicationUser)
+            .Include(r => r.ReferringSpecialization)
+            .ToList();
+            
+        
+        
+        
+        return View(referrals);
+    }
+    [Route("/prescriptions")]
+    public async Task<IActionResult> Prescriptions()
+    {
+        var user = await userManager.GetUserAsync(User);
+        var patient = context.Patients.FirstOrDefault(p => p.ApplicationUserId == user.Id);
+
+        var prescriptions = context.Prescriptions.Include(p => p.Doctor).ThenInclude(d => d.ApplicationUser).Where(p => p.PatientId == patient.Id);
+
+        return View(prescriptions);
+    }
     
     
 }

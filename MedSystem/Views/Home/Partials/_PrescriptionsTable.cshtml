@@ -9,13 +9,13 @@
 
 <div class="card-body p-0">
     <div class="table-responsive">
-    @if (Model.Any())
+    @if ((ViewBag.ActiveReceipts as List<Prescription>) != null)
     {
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
             <tr>
                 <th class="ps-3 text-secondary small">Лек</th>
-                <th class="text-secondary small">Дозирање</th>
+                @* <th class="text-secondary small">Дозирање</th> *@
                 <th class="text-secondary small">Издаден од</th>
                 <th class="text-secondary small">Важи до</th>
                 <th class="text-secondary small pe-3">Статус</th>
@@ -24,15 +24,26 @@
             <tbody>
 
 
-            @foreach (var prescription in Model)
+            @foreach (var prescription in ViewBag.ActiveReceipts)
             {
+                // var instruction = prescription.Instructions.Split(".");
+                
+                var daysPassed = (DateTime.Now - prescription.IssuedDate).TotalDays;
+                var isExpired = daysPassed > 7;
+                
                 <tr>
                     <td class="ps-3 fw-bold">@prescription.Medication</td>
-                    <td>@prescription.Instructions</td>
-                    <td>@prescription.Doctor.ApplicationUser.FirstName + " " + @prescription.Doctor.ApplicationUser.LastName[0] + "."</td>
+                    @* <td>@instruction[0]</td> *@
+                    <td>@prescription.Doctor.ApplicationUser.FirstName  @prescription.Doctor.ApplicationUser.LastName</td>
                     <td>@prescription.ExpirationDate</td>
-                    <td><span class="badge bg-success-subtle text-success rounded-pill">Активен</span></td>
-                    @* <td><span class="badge bg-warning-subtle text-warning rounded-pill">Неподигнат</span></td> *@
+                    @if (isExpired)
+                    {
+                        <td><span class="badge bg-danger-subtle text-danger rounded-pill">Истечен</span></td>
+                    }
+                    else
+                    {
+                        <td><span class="badge bg-success-subtle text-success rounded-pill">Активен</span></td>
+                    }
 
                 </tr>
             }

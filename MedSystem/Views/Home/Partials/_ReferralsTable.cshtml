@@ -16,9 +16,9 @@
                 <thead class="table-light">
                 <tr>
                     <th class="ps-3 text-secondary small">Упатен за</th>
-                    <th class="text-secondary small">Институција / Клиника</th>
+                    @* <th class="text-secondary small">Институција / Клиника</th> *@
                     <th class="text-secondary small">Од лекар</th>
-                    <th class="pe-3 text-secondary small text-end">Акција</th>
+                    <th class="ps-3 text-secondary small">До лекар</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -28,14 +28,13 @@
                 {
                     <tr>
                         <td class="ps-3">
-                            <div class="fw-bold">@referral.ReferringSpecialization</div>
+                            <div class="fw-bold">@referral.ReferringSpecialization.Name</div>
                         </td>
-                        <td>@referral.MedicalInstitution</td>
-                        <td>@referral.ReferringDoctor</td>
-                        // TODO: Napravi kopceto i soodvetna stranica
-                        <td class="pe-3 text-end">
-                            <a href="#" class="btn btn-light btn-sm rounded-3 text-primary border">Прикажи повеќе</a>
-
+                        @* <td>@referral.MedicalInstitution</td> *@
+                        <td>@referral.ReferringDoctor.ApplicationUser.FirstName @referral.ReferringDoctor.ApplicationUser.LastName</td>
+                       
+                        <td class="ps-3">
+                            @referral.ReferredDoctor.ApplicationUser.FirstName @referral.ReferredDoctor.ApplicationUser.LastName
                         </td>
                     </tr>
                 }
