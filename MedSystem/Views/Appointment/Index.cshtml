@@ -3,12 +3,14 @@
 
 @{
     ViewData["Title"] = "Мои Прегледи";
+    Layout = "_Layout";
+
 }
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold mb-1">Мои Прегледи</h2>
+            <h2 class="fw-bold mb-1">Мои прегледи</h2>
             <p class="text-muted small mb-0">Преглед на сите ваши закажани и поминати прегледи</p>
         </div>
         
@@ -26,9 +28,9 @@
                         <tr>
                             <th scope="col" class="py-3 px-4">Доктор</th>
                             <th scope="col" class="py-3">Специјалност</th>
-                            <th scope="col" class="py-3">Датум и Час</th>
+                            <th scope="col" class="py-3">Датум и час</th>
                             <th scope="col" class="py-3">Статус</th>
-                            <th scope="col" class="py-3 text-end px-4">Акција</th>
+                            @* <th scope="col" class="py-3 text-end px-4">Акција</th> *@
                         </tr>
                     </thead>
                     <tbody>
@@ -69,32 +71,32 @@
                                         </span>
                                     }
                                 </td>
-                                <td class="text-end px-4">
-                                    @if (isUpcoming)
-                                    {
-                                        @* <button type="button"  *@
-                                        @*         class="btn btn-outline-danger btn-sm rounded-2 open-cancel-modal"  *@
-                                        @*         data-appointment-id="@app.Id" *@
-                                        @*         data-doctor-name="Д-р @app.Doctor?.ApplicationUser?.FirstName @app.Doctor?.ApplicationUser?.LastName" *@
-                                        @*         data-appointment-date="@app.AppointmentDate.ToString("dd.MM.yyyy HH:mm")"> *@
-                                        @*     <i class="bi bi-x-circle me-1"></i> Откажи *@
-                                        @* </button> *@
-                                        
-                                        <button type="button"
-                                                class="btn btn-outline-danger btn-sm rounded-2  open-delete-modal"
-                                                data-appointment-id="@app.Id"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#deleteModal"
-                                                id="cancelAppointmentModal">
-                                                
-                                            <i class="bi bi-x-circle me-1"></i> Откажи
-                                        </button>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted small">—</span>
-                                    }
-                                </td>
+                                @* <td class="text-end px-4"> *@
+                                @*     @if (isUpcoming) *@
+                                @*     { *@
+                                @*         $1$ <button type="button"  #1# *@
+                                @*         $1$         class="btn btn-outline-danger btn-sm rounded-2 open-cancel-modal"  #1# *@
+                                @*         $1$         data-appointment-id="@app.Id" #1# *@
+                                @*         $1$         data-doctor-name="Д-р @app.Doctor?.ApplicationUser?.FirstName @app.Doctor?.ApplicationUser?.LastName" #1# *@
+                                @*         $1$         data-appointment-date="@app.AppointmentDate.ToString("dd.MM.yyyy HH:mm")"> #1# *@
+                                @*         $1$     <i class="bi bi-x-circle me-1"></i> Откажи #1# *@
+                                @*         $1$ </button> #1# *@
+                                @*          *@
+                                @*         <button type="button" *@
+                                @*                 class="btn btn-outline-danger btn-sm rounded-2  open-delete-modal" *@
+                                @*                 data-appointment-id="@app.Id" *@
+                                @*                 data-bs-toggle="modal" *@
+                                @*                 data-bs-target="#deleteModal" *@
+                                @*                 id="cancelAppointmentModal"> *@
+                                @*                  *@
+                                @*             <i class="bi bi-x-circle me-1"></i> Откажи *@
+                                @*         </button> *@
+                                @*     } *@
+                                @*     else *@
+                                @*     { *@
+                                @*         <span class="text-muted small">—</span> *@
+                                @*     } *@
+                                @* </td> *@
                             </tr>
                         }
                     </tbody>

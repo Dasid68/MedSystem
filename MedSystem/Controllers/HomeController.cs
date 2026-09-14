@@ -77,17 +77,18 @@ public class HomeController(
                         a.AppointmentDate <= threeDaysFromNow &&
                         a.Status == Status.Confirmed) 
             .OrderBy(a => a.AppointmentDate)
+            .Take(5)
             .FirstOrDefaultAsync();
 
         
         ViewBag.UpcomingAppointment = upcomingAppointment;
         
-        var activeReceipts = context.Users.Include(u => u.Patient).ThenInclude(p => p.Prescriptions)
-            
-            .FirstOrDefault(u => u.Email == userEmail);
+        
+        var activeReceipts = user.Patient.Prescriptions
+            .Where(p => (DateTime.Now - p.IssuedDate).TotalDays <= 7)
+            .ToList(); 
 
-        var t = activeReceipts.Patient.Prescriptions.Where(p => (p.ExpirationDate - p.IssuedDate).TotalDays < 7);
-        ViewBag.ActiveReceipts = t;
+        ViewBag.ActiveReceipts = activeReceipts;
         
         return View(user);
     }
@@ -126,6 +127,7 @@ public class HomeController(
             .Include(r => r.ReferredDoctor)
             .ThenInclude(d => d.ApplicationUser)
             .Include(r => r.ReferringSpecialization)
+            .OrderByDescending(r => r.IssuingDate)
             .ToList();
             
         
@@ -139,9 +141,86 @@ public class HomeController(
         var user = await userManager.GetUserAsync(User);
         var patient = context.Patients.FirstOrDefault(p => p.ApplicationUserId == user.Id);
 
-        var prescriptions = context.Prescriptions.Include(p => p.Doctor).ThenInclude(d => d.ApplicationUser).Where(p => p.PatientId == patient.Id);
+        var prescriptions = context.Prescriptions.
+            Include(p => p.Doctor)
+            .ThenInclude(d => d.ApplicationUser)
+            .Where(p => p.PatientId == patient.Id)
+            .OrderByDescending(p => p.IssuedDate)
+            .ToList();
 
         return View(prescriptions);
+    }
+    
+    
+    [HttpGet]
+    public async Task<IActionResult> Profile()
+    {
+        var user = await userManager.GetUserAsync(User);
+       
+        
+
+        var patient = await context.Patients
+            .FirstOrDefaultAsync(p => p.ApplicationUserId == user.Id);
+
+        var model = new PatientProfileViewModel
+        {
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            PhoneNumber = user.PhoneNumber,
+            Email = user.Email ?? string.Empty,
+            Address = patient?.ApplicationUser.Address,
+            DateOfBirth = patient.DateOfBirth
+        };
+
+        return View(model);
+    }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Profile(PatientProfileViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var user = await userManager.GetUserAsync(User);
+      
+
+      
+        user.FirstName = model.FirstName;
+        user.LastName = model.LastName;
+        user.PhoneNumber = model.PhoneNumber;
+        user.Address = model.Address;
+
+        var userResult = await userManager.UpdateAsync(user);
+        if (!userResult.Succeeded)
+        {
+            foreach (var error in userResult.Errors)
+            {
+                //ModelState.AddModelError("", error.Description);
+            }
+            return View(model);
+        }
+
+      
+        var patient = await context.Patients
+            .Include(p => p.ApplicationUser)
+            .FirstOrDefaultAsync(p => p.ApplicationUserId == user.Id);
+    
+        
+        if (patient != null)
+        {
+          
+            patient.DateOfBirth = model.DateOfBirth;
+                
+            
+            context.Patients.Update(patient);
+            await context.SaveChangesAsync();
+        }
+
+        TempData["SuccessMessage"] = "Профилот е успешно ажуриран!";
+        return RedirectToAction(nameof(Profile));
     }
     
     

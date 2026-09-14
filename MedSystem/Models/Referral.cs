@@ -21,6 +21,8 @@ public class Referral
     
     public DateTime IssuedDate { get; set; } =  DateTime.Now;
     
+    public DateTime IssuingDate { get; set; }
+    
     [Required]
     [StringLength(300)]
     public string Reason { get; set; }

@@ -32,7 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Areas\Doctor\Models\" />
+      <Folder Include="Api\" />
       <Folder Include="Data\Migrations\" />
     </ItemGroup>
 

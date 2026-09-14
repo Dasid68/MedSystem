@@ -2,6 +2,7 @@
 using MedSystem.Data;
 using MedSystem.Enums;
 using MedSystem.Models;
+using MedSystem.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -12,7 +13,8 @@ namespace MedSystem.Areas.Doctor.Controllers;
 public class HomeController
     (
         ApplicationDbContext context,
-        UserManager<ApplicationUser> userManager 
+        UserManager<ApplicationUser> userManager,
+        INotificationService notificationService
     ) : DoctorBaseController
 {
     // [Route("/doctor/home")]
@@ -111,6 +113,10 @@ public class HomeController
 
         context.Prescriptions.Add(prescription);
         await context.SaveChangesAsync();
+        
+        var patient = await context.Patients.FirstOrDefaultAsync(p => p.Id == patientId);
+
+        await notificationService.CreateAsync(patient.ApplicationUserId, $"Достапен е нов рецепт за лекот „{medication}, со валидност од 7 дена.“", NotificationType.NewPrescription);
 
       
         return RedirectToAction(nameof(Index));
@@ -136,7 +142,7 @@ public class HomeController
     
     [HttpPost]
     [Route("/doctor/create-referral")]
-    public async Task<IActionResult> CreateReferral(int patientId, int specialistId,int specializationId, string reason)
+    public async Task<IActionResult> CreateReferral(int patientId, int specialistId,int specializationId, string reason, DateTime issuedDate)
     {
         var userId = userManager.GetUserId(User);
         var doctor = await context.Doctors.FirstOrDefaultAsync(d => d.ApplicationUserId == userId);
@@ -150,11 +156,19 @@ public class HomeController
             ReferringSpecializationId =  specializationId,
             ReferredDoctorId = specialistId,
             Reason = reason,
-            IssuedDate = DateTime.Now
+            IssuedDate = DateTime.Now,
+            IssuingDate = issuedDate
         };
 
         context.Referrals.Add(referral);
         await context.SaveChangesAsync();
+        
+        var specialization = await context.Specializations.FirstOrDefaultAsync(s => s.Id == specializationId); 
+        var specialist_doctor = await context.Doctors.Include(d => d.ApplicationUser).FirstOrDefaultAsync(d => d.Id == specialistId);
+        
+        var patient = await context.Patients.FirstOrDefaultAsync(p => p.Id == patientId);
+        
+        await notificationService.CreateAsync(patient.ApplicationUserId, $"Имате нов упат за {specialization.Name}, кај доктор {specialist_doctor.ApplicationUser.FirstName} {specialist_doctor.ApplicationUser.LastName}", NotificationType.NewReferral);
 
         return RedirectToAction(nameof(Index));
     }
