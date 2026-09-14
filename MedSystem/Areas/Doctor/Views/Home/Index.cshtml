@@ -444,7 +444,7 @@
 
                     <div class="mb-3">
                         <label for="specialtySelect" class="form-label fw-semibold">Специјалност / Оддел</label>
-                        <select class="form-select" id="specialtySelect" name="specializationId" asp-items="@ViewBag.Specializations"  required>
+                        <select class="form-select" id="specialtySelect" name="specializationId" asp-items="@ViewBag.Specializations" required>
                             <option value="" selected disabled>-- Избери оддел --</option>
                         </select>
                     </div>
@@ -454,6 +454,14 @@
                         <select class="form-select" id="doctorSelect" name="SpecialistId" required>
                             <option value="" selected disabled>-- Избери доктор --</option>
                         </select>
+                    </div>
+
+                    <!-- НОВО POLE: Избор на датум -->
+                    <div class="mb-3">
+                        <label for="referralDate" class="form-label fw-semibold">Датум на упатување</label>
+                        <input type="date" class="form-control" id="referralDate" name="issuedDate" 
+                               value="@DateTime.Now.ToString("yyyy-MM-dd")" 
+                               min="@DateTime.Now.ToString("yyyy-MM-dd")" required />
                     </div>
 
                     <div class="mb-3">

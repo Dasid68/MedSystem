@@ -122,18 +122,36 @@ namespace MedSystem.Api
         [HttpPost("approve-appointment")]
         public async Task<IActionResult> ApproveAppointment(int id)
         {
-            var app = context.Appointments.Find(id);
+            var app = await context.Appointments
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.ApplicationUser)
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.ApplicationUser)
+                .FirstOrDefaultAsync(a => a.Id == id);
+            
             app.Status = Status.Confirmed;
             await context.SaveChangesAsync();
+            
+            
+            await notificationService.CreateAsync(app.Patient.ApplicationUserId, $"Прегледот кај д-р. {app.Doctor.ApplicationUser.FirstName} {app.Doctor.ApplicationUser.LastName} е одобрен.", NotificationType.AppointmentConfirmed);
+            
             return Ok();
         }
 
         [HttpPost("reject-appointment")]
         public async Task<IActionResult> RejectAppointment(int id)
         {
-            var app = context.Appointments.Find(id);
+            var app = await context.Appointments
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.ApplicationUser)
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.ApplicationUser)
+                .FirstOrDefaultAsync(a => a.Id == id);
             app.Status = Status.Cancelled;
             await context.SaveChangesAsync();
+
+            await notificationService.CreateAsync(app.Patient.ApplicationUserId, $"Прегледот кај д-р. {app.Doctor.ApplicationUser.FirstName} {app.Doctor.ApplicationUser.LastName} е откажан.", NotificationType.AppointmentDeclined);
+            
             return Ok();
         }
         

@@ -1,9 +1,8 @@
-﻿
-@using System.Globalization
+﻿@using System.Globalization
 @model IEnumerable<Prescription>
 
 @{
-    ViewData["Title"] = "Мои Прегледи";
+    ViewData["Title"] = "Мои рецепти";
     Layout = "_Layout";
 }
 
@@ -11,59 +10,65 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold mb-1">Мои рецепти</h2>
-            <p class="text-muted small mb-0">Преглед на сите ваши рецепти</p>
+            <p class="text-muted small mb-0">Преглед на сите ваши издадени медицински рецепти</p>
         </div>
-        
-      
     </div>
 
-    @if (Model.Any())
+    @if (Model != null && Model.Any())
     {
         <div class="card shadow-sm border-0 rounded-3">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th scope="col" class="py-3">Лек</th>
-                            <th class="py-3">Упатсво</th>
+                            <th scope="col" class="py-3 px-4">Лек</th>
+                            <th scope="col" class="py-3">Упатство за употреба</th>
                             <th scope="col" class="py-3">Издаден од</th>
                             <th scope="col" class="py-3">Важи до</th>
                             <th scope="col" class="py-3">Статус</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var prescription in Model)
                         {
-                            var daysPassed = (DateTime.Now - prescription.IssuedDate).TotalDays;
-                            var isExpired = daysPassed > 7;
-                            
-                          
-                            
-    
-                            <tr >
-                                <td>
-                                    @prescription.Medication
+                            var isExpired = (DateTime.Now - prescription.IssuedDate).TotalDays > 7;
+
+                            <tr>
+                                <td class="px-4">
+                                    <div class="fw-bold text-dark">
+                                        @prescription.Medication
+                                    </div>
                                 </td>
                                 <td>
-                                    @prescription.Instructions
+                                    <span class="text-muted small">
+                                        @(string.IsNullOrWhiteSpace(prescription.Instructions) ? "-" : prescription.Instructions)
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark">
+                                        Д-р @(prescription.Doctor?.ApplicationUser?.FirstName) @(prescription.Doctor?.ApplicationUser?.LastName)
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">@prescription.ExpirationDate.ToString("dd.MM.yyyy")</div>
+                                    <div class="text-muted small">до 23:59 ч.</div>
+                                </td>
+                                <td>
+                                    @if (isExpired)
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-2">
+                                            Истечен
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
+                                            Активен
+                                        </span>
+                                    }
                                 </td>
                                
-                                <td >@prescription.Doctor.ApplicationUser.FirstName @prescription.Doctor.ApplicationUser.LastName
-                                </td>
-    
-                                <td>
-                                    @prescription.ExpirationDate.ToString("d",new CultureInfo("mk-MK"))
-                                </td>
-                                
-                                @if (isExpired)
-                                {
-                                    <td><span class="badge bg-danger-subtle text-danger rounded-pill">Истечен</span></td>
-                                }
-                                else
-                                {
-                                    <td><span class="badge bg-success-subtle text-success rounded-pill">Активен</span></td>
-                                }
-    
                             </tr>
                         }
                     </tbody>
@@ -75,9 +80,9 @@
     {
         <div class="card shadow-sm border-0 text-center p-5 rounded-3">
             <div class="my-3">
-                <i class="bi bi-calendar-x fs-1 text-muted opacity-50"></i>
-                <h5 class="fw-bold mt-3">Немате закажано прегледи</h5>
-                <p class="text-muted small">Сите ваши идни и поминати прегледи ќе се појават тука.</p>
+                <i class="bi bi-capsule fs-1 text-muted opacity-50"></i>
+                <h5 class="fw-bold mt-3">Немате издадени рецепти</h5>
+                <p class="text-muted small">Сите ваши издадени рецепти од матичниот или специјалист лекар ќе се појават тука.</p>
                 <a href="#" data-bs-toggle="modal" data-bs-target="#bookAppointmentModal" data-userId="@ViewBag.UserId" class="btn btn-primary shadow-sm">
                     Закажи го твојот прв преглед
                 </a>
@@ -86,3 +91,13 @@
     }
 </div>
 
+<partial name="Partials/CancelAppointmentModal" />
+
+@if (ViewBag.User != null)
+{
+    <partial name="Partials/_BookAppointment" model="@ViewBag.User" />
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+}
