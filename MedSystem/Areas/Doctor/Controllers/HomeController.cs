@@ -161,6 +161,18 @@ public class HomeController
         };
 
         context.Referrals.Add(referral);
+        
+        var appointment = new Appointment
+        {
+            PatientId = patientId,
+            DoctorId = specialistId,
+            AppointmentDate = issuedDate, // Датумот за кој е издаден упатот
+            Status = Status.Pending,     // Прегледот се поставува како закажан/на чекање
+            Reason = $"Упат од д-р {doctor.ApplicationUser?.FirstName} {doctor.ApplicationUser?.LastName}. Причина: {reason}"
+        };
+
+        context.Appointments.Add(appointment);
+        
         await context.SaveChangesAsync();
         
         var specialization = await context.Specializations.FirstOrDefaultAsync(s => s.Id == specializationId); 
